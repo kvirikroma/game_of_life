@@ -19,17 +19,17 @@ life_runner;
  * 0 1 2
  * 3 B 4
  * 5 6 7
- * where B is the bit we are counting neighbors for
+ * where B is the bit we are counting neighbors for.
  */
+
+// Initialize life runner with values
+extern void life_runner_init(life_runner* runner, uint32_t size_x, uint32_t size_y);
+
+// Free the life runner's parts that are allocated in heap
+extern void life_runner_delete(life_runner* runner);
 
 // Make one more step
 extern void life_runner_make_step(life_runner* runner);
 
 // Count neighbors of bit (how many '1' bits are around)
 extern uint8_t life_runner_count_neighbors(life_runner* runner, uint32_t x, uint32_t y);
-
-// Initialize life runner with values
-extern void life_runner_init(life_runner* runner, uint32_t size_x, uint32_t size_y, uint8_t neighbors_that_matter);
-
-// Free the life runner's parts that are allocated in heap
-extern void life_runner_delete(life_runner* runner);
