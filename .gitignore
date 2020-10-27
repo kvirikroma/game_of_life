@@ -1,0 +1,6 @@
+testdir_copy
+filerm
+*.o
+*.deb
+package/usr/sbin
+.vscode
