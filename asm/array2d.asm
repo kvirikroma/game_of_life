@@ -55,7 +55,7 @@ segment .text
         ; param rdi - array2d* to get item from it
         ; param rsi - X-coordinate of an item
         ; param rdx - Y-coordinate of an item
-        ; returns item*
+        ; returns item pointer
         cmp esi, edx  ; zero their upper parts
 
         mov r8d, dword [rdi + array2d.x_size]

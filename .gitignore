@@ -1,5 +1,4 @@
-testdir_copy
-filerm
+game_of_life
 *.o
 *.deb
 package/usr/sbin
