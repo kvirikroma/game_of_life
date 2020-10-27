@@ -4,3 +4,4 @@ filerm
 *.deb
 package/usr/sbin
 .vscode
+asm/compiler_symlinks

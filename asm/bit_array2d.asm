@@ -1,26 +1,20 @@
-%include "include/array_2d_include.asm"
+%include "array2d_include.asm"
 
 global bit_array2d_init     ; initializes array of needed size in memory
 global bit_array2d_delete   ; deletes an bit_array2d* (param rdi - bit_array2d* to delete)
-global bit_array2d_get_bit
-global bit_array2d_set_bit
-
-
-struc bit_array2d
-    ;structure of dynamic array
-    .x_size     resd 1  ; array x axis size
-    .y_size     resd 1  ; array y axis size
-    .item_size  resw 1  ; size of each array item (in bytes)
-    .data       resq 0  ; begin of array data
-endstruc
+global bit_array2d_get_bit  ; returns value of bit by its coordinates
+global bit_array2d_set_bit  ; sets bit value by its coordinates
 
 
 segment .text
-    bit_array2d_delete equ array2d_delete
-
     bit_array2d_init:
         ; param rdi - size by X axis (in bits)
         ; param rsi - size by Y axis (in bits)
+        ret
+
+    bit_array2d_delete:
+        ; param rdi - bit_array2d*
+        call array2d_delete
         ret
 
     bit_array2d_get_bit:

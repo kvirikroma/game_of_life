@@ -1,4 +1,4 @@
-%include "include/array_2d_include_common.asm"
+%include "array2d_include_common.asm"
 
 extern malloc
 extern free
@@ -11,8 +11,6 @@ global array2d_get_item_ptr ; returns pointer to an item with given coordinates
 
 
 segment .text
-    array2d_delete equ free
-
     array2d_init:
         ; initializes an 2-dimensional array in memory
         ; param rdi - size by X axis (maximum is 4.294.967.295)
@@ -44,8 +42,13 @@ segment .text
         pop rcx
         mov [rdx + array2d.y_size], ecx
         pop rcx
-        pop [rdx + array2d.x_size], ecx
+        mov [rdx + array2d.x_size], ecx
 
+        ret
+    
+    array2d_delete:
+        ; param rdi - array2d*
+        call free
         ret
     
     array2d_get_item_ptr:
@@ -55,10 +58,10 @@ segment .text
         ; returns item*
         cmp esi, edx  ; zero their upper parts
 
-        movzx r8, dword [rdi + array2d.x_size]
+        mov r8d, dword [rdi + array2d.x_size]
         cmp rsi, r8
         jnl gip_return_nullptr
-        movzx r8, dword [rdi + array2d.y_size]
+        mov r8d, dword [rdi + array2d.y_size]
         cmp rdx, r8
         jnl gip_return_nullptr
 
@@ -69,7 +72,7 @@ segment .text
         mov eax, [rdi + array2d.x_size]
         mul r8d
         mul edx
-        add r9
+        add rax, r9
 
         jmp gip_exit_normally
         gip_return_nullptr:

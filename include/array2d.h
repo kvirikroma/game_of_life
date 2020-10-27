@@ -1,10 +1,12 @@
 #include <stdint.h>
 
-typedef struct {
+typedef struct
+{
     uint32_t x_size;
     uint32_t y_size;
     uint16_t item_size;
-} array2d;
+}
+array2d;
 
 
 // Initializes a 2-dimensional array in heap
