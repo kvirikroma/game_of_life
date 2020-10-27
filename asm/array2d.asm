@@ -81,8 +81,8 @@ segment .text
 
         ret
     
-    array2d_add_row:
+    array2d_add_row:  ; TODO
         ret
     
-    array2d_add_column:
+    array2d_add_column:  ; TODO
         ret

@@ -1,3 +1,7 @@
+%ifndef array2d_include_common
+%define array2d_include_common
+
+
 struc array2d
     .x_size     resd 1  ; array x axis size
     .y_size     resd 1  ; array y axis size
@@ -6,3 +10,6 @@ struc array2d
 endstruc
 
 ARRAY2D_SIZE equ 10
+
+
+%endif

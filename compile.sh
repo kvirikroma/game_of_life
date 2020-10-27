@@ -2,6 +2,8 @@
 
 cd ./asm
 mkdir -p ./compiler_symlinks
+rm -rf ./compiler_symlinks
+mkdir ./compiler_symlinks
 
 for f in ./*.asm
 do

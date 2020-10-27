@@ -1,3 +1,7 @@
+%ifndef bit_array2d_include_common
+%define bit_array2d_include_common
+
+
 %include "array2d_include_common.asm"
 
 struc bit_array2d
@@ -8,3 +12,6 @@ struc bit_array2d
 endstruc
 
 BIT_ARRAY2D_SIZE equ (8 + ARRAY2D_SIZE)
+
+
+%endif

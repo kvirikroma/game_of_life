@@ -1,4 +1,5 @@
 %include "array2d_include.asm"
+%include "bit_array2d_include_common.asm"
 
 global bit_array2d_init     ; initializes array of needed size in memory
 global bit_array2d_delete   ; deletes an bit_array2d* (param rdi - bit_array2d* to delete)
