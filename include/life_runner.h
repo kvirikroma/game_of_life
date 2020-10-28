@@ -5,6 +5,7 @@
 
 #include "bit_array2d.h"
 
+
 typedef struct
 {
     bit_array2d* field;
@@ -19,7 +20,7 @@ life_runner;
 /*
  * life_runner.neighbors_that_matter shows presence of what neighbors will affect the decision.
  * Each bit of this field is boolean flag of neighbor affecting.
- * They are numering like this:
+ * They are numbered like this:
  * 0 1 2
  * 3 B 4
  * 5 6 7
