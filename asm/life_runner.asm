@@ -264,6 +264,8 @@ segment .text
         mov rdi, runner
         mov rsi, new_field
         mov [rdi + life_runner.field], rsi
+        mov rdi, old_field
+        call bit_array2d_delete
         
         %undef runner
         %undef old_field
