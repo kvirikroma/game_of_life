@@ -156,7 +156,7 @@ segment .text
         mov [rbp-32], rax
         cpuid
         mov edx, [rbp-32]
-        shr ecx, 19 ;checking for sse4.1
+        shr ecx, 23 ;checking for popcnt instruction
         
         and cl, 1
         jz not_have_sse4
