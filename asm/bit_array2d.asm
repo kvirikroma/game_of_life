@@ -72,11 +72,12 @@ segment .text
         mov rdi, rax
         xor eax, eax
         rep stosb
+        mov rax, rdx
         
         pop rcx
-        mov [rdx + bit_array2d.y_size], ecx
+        mov [rax + bit_array2d.y_size], ecx
         pop rcx
-        mov [rdx + bit_array2d.x_size], ecx
+        mov [rax + bit_array2d.x_size], ecx
 
         ret
 
@@ -91,11 +92,13 @@ segment .text
         ; param rdx - coordinate by Y axis (in bits)
         ; returns index in bit field (it loops on overflow)
         mov ecx, edx
-        mov eax, [rdi + bit_array2d.x_size]
+        mov eax, esi
+        mov esi, [rdi + bit_array2d.x_size]
         xor edx, edx
         div esi
         mov r8d, edx  ; r8d - X
-        mov eax, [rdi + bit_array2d.y_size]
+        mov eax, ecx
+        mov ecx, [rdi + bit_array2d.y_size]
         xor edx, edx
         div ecx  ; edx - Y
         mov eax, edx

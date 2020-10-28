@@ -1,3 +1,6 @@
+#ifndef ARRAY2D_H
+#define ARRAY2D_H
+
 #include <stdint.h>
 
 typedef struct
@@ -17,3 +20,5 @@ extern void array2d_delete(array2d* array);
 
 // Returns an item pointer by its coordinates
 extern void* array2d_get_item_ptr(array2d* array, uint32_t x, uint32_t y);
+
+#endif
