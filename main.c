@@ -39,7 +39,11 @@ void print_field(bit_array2d* field)
 int main(int argc, char** argv)
 {
     life_runner game;
-    life_runner_init(&game, 5, 5);
+    life_runner_init(&game, 32, 24);
+
+    bit_array2d_set_bit(game.field, 2, 4, 1);
+    bit_array2d_set_bit(game.field, 3, 4, 1);
+    bit_array2d_set_bit(game.field, 4, 4, 1);
 
     bit_array2d_set_bit(game.field, 0, 0, 1);
     bit_array2d_set_bit(game.field, 1, 0, 1);

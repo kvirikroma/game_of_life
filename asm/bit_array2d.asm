@@ -61,8 +61,9 @@ segment .text
         shr rax, 3
         inc rax
 
-        push rax
         add rax, BIT_ARRAY2D_SIZE
+        push rax
+        mov rdi, rax
         call malloc
         mov rdi, rax
         call check_pointer_after_malloc
@@ -102,7 +103,7 @@ segment .text
         xor edx, edx
         div ecx  ; edx - Y
         mov eax, edx
-        mul dword [rdi + bit_array2d.y_size]
+        mul dword [rdi + bit_array2d.x_size]
         shl rdx, 32
         or rax, rdx
         add rax, r8
