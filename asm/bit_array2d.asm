@@ -88,10 +88,21 @@ segment .text
         ret
 
     bit_array2d_coordinates_to_index:
-        ; param rdi - bit_array2d
+        ; param rdi - bit_array2d*
         ; param rsi - coordinate by X axis (in bits)
         ; param rdx - coordinate by Y axis (in bits)
         ; returns index in bit field (it loops on overflow)
+        mov r9d, esi
+        cmp r9d, 0
+        jnl x_nl_than_zero_1
+            neg esi
+        x_nl_than_zero_1:
+        mov r10d, edx
+        cmp r10d, 0
+        jnl y_nl_than_zero_1
+            neg edx
+        y_nl_than_zero_1:
+
         mov ecx, edx
         mov eax, esi
         mov esi, [rdi + bit_array2d.x_size]
@@ -102,6 +113,18 @@ segment .text
         mov ecx, [rdi + bit_array2d.y_size]
         xor edx, edx
         div ecx  ; edx - Y
+
+        cmp r10d, 0
+        jnl y_nl_than_zero_2
+            xchg edx, ecx
+            sub edx, ecx
+        y_nl_than_zero_2:
+        cmp r9d, 0
+        jnl x_nl_than_zero_2
+            xchg r8d, esi
+            sub r8d, esi
+        x_nl_than_zero_2:
+
         mov eax, edx
         mul dword [rdi + bit_array2d.x_size]
         shl rdx, 32
@@ -110,7 +133,7 @@ segment .text
         ret
 
     bit_array2d_get_bit:
-        ; param rdi - bit_array2d
+        ; param rdi - bit_array2d*
         ; param rsi - coordinate by X axis (in bits)
         ; param rdx - coordinate by Y axis (in bits)
         ; returns 0 or 1 (bit value)
@@ -124,7 +147,7 @@ segment .text
         ret
 
     bit_array2d_set_bit:
-        ; param rdi - bit_array2d
+        ; param rdi - bit_array2d*
         ; param rsi - coordinate by X axis (in bits)
         ; param rdx - coordinate by Y axis (in bits)
         ; param rcx - value (0 or 1), every non-0 value will be accepted as 1

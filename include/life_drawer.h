@@ -17,15 +17,6 @@ typedef struct
 }
 life_drawer;
 
-typedef enum
-{
-    UP,
-    DOWN,
-    LEFT,
-    RIGHT,
-}
-direction;
-
 
 // Init the life drawer and the game; open the window
 life_drawer life_drawer_init(uint32_t pixels_x, uint32_t pixels_y, uint32_t cells_x, uint32_t cells_y);
@@ -41,9 +32,5 @@ void life_drawer_change_window_size(life_drawer* drawer, uint32_t pixels_x, uint
 
 // Resize the game (number of cells)
 void life_drawer_change_game_size(life_drawer* drawer, uint32_t cells_x, uint32_t cells_y);
-
-// Move the game in window (distance is in cells)
-void life_drawer_move_game(direction move_direction, uint32_t distance);
-
 
 #endif

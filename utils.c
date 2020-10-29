@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "include/bit_array2d.h"
+#include "include/life_runner.h"
 
 
 void exit_on_syntax_error(void)
@@ -33,4 +34,63 @@ void print_field(bit_array2d* field)
         }
         printf("\n");
     }
+}
+
+void life_runner_move_game(life_runner* runner, direction move_direction, uint32_t distance)
+{
+    bit_array2d* new_field = bit_array2d_init(runner->field->x_size, runner->field->y_size);
+    for (uint32_t y = 0; y < runner->field->y_size; y++)
+    {
+        for (uint32_t x = 0; x < runner->field->x_size; x++)
+        {
+            if (bit_array2d_get_bit(runner->field, x, y))
+            {
+                switch (move_direction)
+                {
+                    case UP:
+                    {
+                        bit_array2d_set_bit(new_field, x, y - distance, 1);
+                        break;
+                    }
+                    case DOWN:
+                    {
+                        bit_array2d_set_bit(new_field, x, y + distance, 1);
+                        break;
+                    }
+                    case LEFT:
+                    {
+                        bit_array2d_set_bit(new_field, x - distance, y, 1);
+                        break;
+                    }
+                    case RIGHT:
+                    {
+                        bit_array2d_set_bit(new_field, x + distance, y, 1);
+                        break;
+                    }
+                    case UP_LEFT:
+                    {
+                        bit_array2d_set_bit(new_field, x - distance, y - distance, 1);
+                        break;
+                    }
+                    case UP_RIGHT:
+                    {
+                        bit_array2d_set_bit(new_field, x + distance, y - distance, 1);
+                        break;
+                    }
+                    case DOWN_LEFT:
+                    {
+                        bit_array2d_set_bit(new_field, x - distance, y + distance, 1);
+                        break;
+                    }
+                    case DOWN_RIGHT:
+                    {
+                        bit_array2d_set_bit(new_field, x + distance, y + distance, 1);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    bit_array2d_delete(runner->field);
+    runner->field = new_field;
 }

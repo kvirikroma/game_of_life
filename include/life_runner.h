@@ -17,6 +17,19 @@ typedef struct
 }
 life_runner;
 
+typedef enum
+{
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT,
+    UP_LEFT,
+    UP_RIGHT,
+    DOWN_LEFT,
+    DOWN_RIGHT
+}
+direction;
+
 /*
  * life_runner.neighbors_that_matter shows presence of what neighbors will affect the decision.
  * Each bit of this field is boolean flag of neighbor affecting.
@@ -37,6 +50,9 @@ extern void life_runner_delete(life_runner* runner);
 extern void life_runner_make_step(life_runner* runner);
 
 // Count neighbors of bit (how many '1' bits are around)
-extern uint8_t life_runner_count_neighbors(life_runner* runner, uint32_t x, uint32_t y);
+extern uint8_t life_runner_count_neighbors(life_runner* runner, int32_t x, int32_t y);
+
+// Move the game in window (distance is in cells)
+void life_runner_move_game(life_runner* runner, direction move_direction, uint32_t distance);
 
 #endif
