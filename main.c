@@ -3,40 +3,11 @@
 
 #include "include/bit_array2d.h"
 #include "include/life_runner.h"
+#include "include/utils.h"
+#include "include/life_drawer.h"
 
 
-void exit_on_syntax_error(void)
-{
-    fprintf(stderr, "%s", "Invalid command line parameters detected!\n");
-    exit(1);
-}
-
-
-void* check_pointer_after_malloc(void* ptr)
-{
-    if (!ptr)
-    {
-        fprintf(stderr, "%s", "An error occurred while allocating memory! Exiting\n");
-        exit(1);
-    }
-    return ptr;
-}
-
-
-void print_field(bit_array2d* field)
-{
-    for (uint32_t y = 0; y < field->y_size; y++)
-    {
-        for (uint32_t x = 0; x < field->x_size; x++)
-        {
-            printf("%d ", bit_array2d_get_bit(field, x, y));
-        }
-        printf("\n");
-    }
-}
-
-
-int main(int argc, char** argv)
+/*int main(int argc, char** argv)
 {
     life_runner game;
     life_runner_init(&game, 32, 18);
@@ -58,5 +29,29 @@ int main(int argc, char** argv)
     }
 
     life_runner_delete(&game);
+    return 0;
+}*/
+
+int main()
+{
+    if (SDL_Init(SDL_INIT_VIDEO))
+    {
+        exit(1);
+    }
+
+    SDL_Window* window = SDL_CreateWindow("Game Of Life", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_SHOWN);
+    
+    if (!window) {
+        exit(1);
+    }
+
+    SDL_Surface* screen_surface = SDL_GetWindowSurface(window);
+    SDL_FillRect(screen_surface, NULL, SDL_MapRGB(screen_surface->format, 0, 0, 0));
+    SDL_UpdateWindowSurface(window);
+
+    SDL_Delay(8000);
+    
+    SDL_DestroyWindow(window);
+    SDL_Quit();
     return 0;
 }
