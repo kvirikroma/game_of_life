@@ -33,4 +33,7 @@ void life_drawer_change_window_size(life_drawer* self, uint32_t pixels_x, uint32
 // Resize the game (number of cells)
 void life_drawer_change_game_size(life_drawer* self, uint32_t cells_x, uint32_t cells_y);
 
+// Change cell by coordinates of pixel
+void life_drawer_change_cell(life_drawer* self, uint32_t pixel_x, uint32_t pixel_y, bool value);
+
 #endif

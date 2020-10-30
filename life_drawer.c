@@ -42,7 +42,7 @@ life_display_info get_cell_size(coordinates window_size, coordinates game_size)
     {
         result.padding_left = 0;
     }
-    
+
     return result;
 }
 
@@ -116,6 +116,26 @@ void life_drawer_redraw(life_drawer* self)
     SDL_UpdateWindowSurface(self->window);
 }
 
-void life_drawer_change_window_size(life_drawer* self, uint32_t pixels_x, uint32_t pixels_y);
+void life_drawer_change_cell(life_drawer* self, uint32_t pixel_x, uint32_t pixel_y, bool value)
+{
+    SDL_Rect* first_rect = (SDL_Rect*)array2d_get_item_ptr(self->visual_cells, 0, 0);
+    pixel_x -= first_rect->x;
+    pixel_y -= first_rect->y;
 
-void life_drawer_change_game_size(life_drawer* self, uint32_t cells_x, uint32_t cells_y);
+    life_display_info info = get_cell_size(
+        (coordinates){self->pixels_x, self->pixels_y},
+        (coordinates){self->game.field->x_size, self->game.field->y_size}
+    );
+    
+    pixel_x /= info.cell_size.x;
+    pixel_y /= info.cell_size.y;
+
+    if ((pixel_x >= 0) && (pixel_y >= 0) && (pixel_x < self->game.field->x_size) && (pixel_y < self->game.field->y_size))
+    {
+        bit_array2d_set_bit(self->game.field, pixel_x, pixel_y, value);
+    }
+}
+
+void life_drawer_change_window_size(life_drawer* self, uint32_t pixels_x, uint32_t pixels_y);  // TODO
+
+void life_drawer_change_game_size(life_drawer* self, uint32_t cells_x, uint32_t cells_y);  // TODO
