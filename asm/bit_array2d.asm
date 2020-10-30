@@ -25,7 +25,7 @@ segment .text
         mov ecx, 7
         sub cl, sil
         shr eax, cl
-        and al, 1
+        and eax, 1
         ret
 
     bit_field_set_bit:

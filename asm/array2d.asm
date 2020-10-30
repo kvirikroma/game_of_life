@@ -9,11 +9,6 @@ global array2d_init         ; initializes array of needed size in memory
 global array2d_delete       ; deletes an array2d* (param rdi - array2d* to delete)
 global array2d_get_item_ptr ; returns pointer to an item with given coordinates
 
-global array2d_add_rows       ; add rows to the array2d
-global array2d_add_columns    ; add columns to the array2d
-global array2d_remove_rows    ; remove rows from the array2d
-global array2d_remove_columns ; remove columns from the array2d
-
 
 segment .text
     array2d_init:
@@ -89,32 +84,4 @@ segment .text
             xor eax, eax
         gip_exit_normally:
 
-        ret
-    
-    array2d_add_rows:  ; TODO
-        ; param rdi - array2d*
-        ; param rsi - number of rows to add
-        ; param rdx - side (0 - top, 1 - bottom)
-        ; returns new array2d*
-        ret
-    
-    array2d_add_columns:  ; TODO
-        ; param rdi - array2d*
-        ; param rsi - number of columns to add
-        ; param rdx - side (0 - left, 1 - right)
-        ; returns new array2d*
-        ret
-    
-    array2d_remove_rows:  ; TODO
-        ; param rdi - array2d*
-        ; param rsi - number of rows to remove
-        ; param rdx - side (0 - top, 1 - bottom)
-        ; returns new array2d*
-        ret
-    
-    array2d_remove_columns:  ; TODO
-        ; param rdi - array2d*
-        ; param rsi - number of columns to remove
-        ; param rdx - side (0 - left, 1 - right)
-        ; returns new array2d*
         ret

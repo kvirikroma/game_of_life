@@ -47,40 +47,6 @@ segment .text
         push rsi  ; [rbp-16] - X
         push rdx  ; [rbp-24] - Y
 
-        %macro x_minus_one 0
-            cmp esi, 0
-            jne %%x_not_null
-                mov esi, [rcx + bit_array2d.x_size]
-            %%x_not_null:
-            dec esi
-        %endmacro
-
-        %macro y_minus_one 0
-            cmp edx, 0
-            jne %%y_not_null
-                mov edx, [rcx + bit_array2d.y_size]
-            %%y_not_null:
-            dec edx
-        %endmacro
-
-        %macro x_plus_one 0
-            inc esi
-            mov eax, [rcx + bit_array2d.x_size]
-            cmp rsi, rax
-            jl %%x_not_max
-                xor esi, esi
-            %%x_not_max:
-        %endmacro
-
-        %macro y_plus_one 0
-            inc edx
-            mov eax, [rcx + bit_array2d.y_size]
-            cmp rdx, rax
-            jl %%y_not_max
-                xor edx, edx
-            %%y_not_max:
-        %endmacro
-
         %macro reload_variables 0
             mov rdi, [rbp-8]
             mov rsi, [rbp-16]
@@ -96,8 +62,8 @@ segment .text
 
         ;-1, -1
         mov rcx, [rdi + life_runner.field]
-        x_minus_one
-        y_minus_one
+        dec esi
+        dec edx
         mov rdi, rcx
         call bit_array2d_get_bit
         push rax  ; [rbp-32] - result
@@ -105,46 +71,46 @@ segment .text
         ;0, -1
         reload_variables
         mov rcx, [rdi + life_runner.field]
-        y_minus_one
+        dec edx
         save_bit 1
 
         ;+1, -1
         reload_variables
         mov rcx, [rdi + life_runner.field]
-        x_plus_one
-        y_minus_one
+        inc esi
+        dec edx
         save_bit 2
 
         ;-1, 0
         reload_variables
         mov rcx, [rdi + life_runner.field]
-        x_minus_one
+        dec esi
         save_bit 3
 
         ;+1, 0
         reload_variables
         mov rcx, [rdi + life_runner.field]
-        x_plus_one
+        inc esi
         save_bit 4
 
         ;-1, +1
         reload_variables
         mov rcx, [rdi + life_runner.field]
-        x_minus_one
-        y_plus_one
+        dec esi
+        inc edx
         save_bit 5
 
         ;0, +1
         reload_variables
         mov rcx, [rdi + life_runner.field]
-        y_plus_one
+        inc edx
         save_bit 6
 
         ;+1, +1
         reload_variables
         mov rcx, [rdi + life_runner.field]
-        x_plus_one
-        y_plus_one
+        inc esi
+        inc edx
         save_bit 7
 
 
@@ -154,9 +120,11 @@ segment .text
         and al, [rdi + life_runner.neighbors_that_matter]
         and eax, 0FFh
         mov [rbp-32], rax
+
+        ; checking for popcnt instruction
         cpuid
         mov edx, [rbp-32]
-        shr ecx, 23 ;checking for popcnt instruction
+        shr ecx, 23
         
         and cl, 1
         jz not_have_sse4

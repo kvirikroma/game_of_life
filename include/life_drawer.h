@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 
 #include "life_runner.h"
+#include "array2d.h"
 
 
 typedef struct
@@ -12,6 +13,7 @@ typedef struct
     uint32_t pixels_y;
     life_runner game;
     SDL_Window* window;
+    array2d* visual_cells;
 }
 life_drawer;
 

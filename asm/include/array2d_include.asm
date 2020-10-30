@@ -11,5 +11,6 @@ extern array2d_add_rows
 extern array2d_add_columns
 extern array2d_remove_rows
 extern array2d_remove_columns
+extern array2d_copy_content
 
 %endif
