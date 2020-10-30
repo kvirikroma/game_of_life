@@ -11,7 +11,6 @@ int main(int argc, char** argv)
 {
     life_runner game;
     life_runner_init(&game, 32, 18);
-    //game.neighbors_that_matter = 0b01011010;  // von Neumann neighborhood
 
     bit_array2d_set_bit(game.field, 2, 4, 1);
     bit_array2d_set_bit(game.field, 3, 4, 1);
@@ -32,12 +31,3 @@ int main(int argc, char** argv)
     life_runner_delete(&game);
     return 0;
 }
-
-/*int main()
-{
-    SDL_Delay(8000);
-    
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-    return 0;
-}*/

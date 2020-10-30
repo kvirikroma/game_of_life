@@ -36,14 +36,14 @@ void print_field(bit_array2d* field)
     }
 }
 
-void life_runner_move_game(life_runner* runner, direction move_direction, uint32_t distance)
+void life_runner_move_game(life_runner* self, direction move_direction, uint32_t distance)
 {
-    bit_array2d* new_field = bit_array2d_init(runner->field->x_size, runner->field->y_size);
-    for (uint32_t y = 0; y < runner->field->y_size; y++)
+    bit_array2d* new_field = bit_array2d_init(self->field->x_size, self->field->y_size);
+    for (uint32_t y = 0; y < self->field->y_size; y++)
     {
-        for (uint32_t x = 0; x < runner->field->x_size; x++)
+        for (uint32_t x = 0; x < self->field->x_size; x++)
         {
-            if (bit_array2d_get_bit(runner->field, x, y))
+            if (bit_array2d_get_bit(self->field, x, y))
             {
                 switch (move_direction)
                 {
@@ -91,6 +91,6 @@ void life_runner_move_game(life_runner* runner, direction move_direction, uint32
             }
         }
     }
-    bit_array2d_delete(runner->field);
-    runner->field = new_field;
+    bit_array2d_delete(self->field);
+    self->field = new_field;
 }

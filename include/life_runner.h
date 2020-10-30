@@ -38,21 +38,22 @@ direction;
  * 3 B 4
  * 5 6 7
  * where B is the bit we are counting neighbors for.
+ * For example, 0b01011010 is von Neumann neighborhood.
  */
 
 // Initialize life runner with values
-extern void life_runner_init(life_runner* runner, uint32_t size_x, uint32_t size_y);
+extern void life_runner_init(life_runner* self, uint32_t size_x, uint32_t size_y);
 
 // Free the life runner's parts that are allocated in heap
-extern void life_runner_delete(life_runner* runner);
+extern void life_runner_delete(life_runner* self);
 
 // Make one more step
-extern void life_runner_make_step(life_runner* runner);
+extern void life_runner_make_step(life_runner* self);
 
 // Count neighbors of bit (how many '1' bits are around)
-extern uint8_t life_runner_count_neighbors(life_runner* runner, int32_t x, int32_t y);
+extern uint8_t life_runner_count_neighbors(life_runner* self, int32_t x, int32_t y);
 
 // Move the game in window (distance is in cells)
-void life_runner_move_game(life_runner* runner, direction move_direction, uint32_t distance);
+void life_runner_move_game(life_runner* self, direction move_direction, uint32_t distance);
 
 #endif

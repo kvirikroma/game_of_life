@@ -17,9 +17,9 @@ array2d;
 extern array2d* array2d_init(uint32_t x, uint32_t y, uint16_t item_size);
 
 // Deletes a 2-dimensional array
-extern void array2d_delete(array2d* array);
+extern void array2d_delete(array2d* self);
 
 // Returns an item pointer by its coordinates
-extern void* array2d_get_item_ptr(array2d* array, uint32_t x, uint32_t y);
+extern void* array2d_get_item_ptr(array2d* self, uint32_t x, uint32_t y);
 
 #endif
