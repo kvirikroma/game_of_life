@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "include/bit_array2d.h"
+#include "include/array2d.h"
 #include "include/life_runner.h"
 
 
@@ -35,6 +36,20 @@ void print_field(bit_array2d* field)
         printf("\n");
     }
 }
+
+
+void print_array2d(array2d* array)
+{
+    for (uint32_t y = 0; y < array->y_size; y++)
+    {
+        for (uint32_t x = 0; x < array->x_size; x++)
+        {
+            printf("%d ", *(uint32_t*)array2d_get_item_ptr(array, x, y));
+        }
+        printf("\n");
+    }
+}
+
 
 void life_runner_move_game(life_runner* self, direction move_direction, uint32_t distance)
 {

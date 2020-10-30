@@ -15,4 +15,7 @@ void* check_pointer_after_malloc(void* ptr);
 // Print bit_array2d
 void print_field(bit_array2d* field);
 
+// Print array2d of uint32_t items
+void print_array2d(array2d* array);
+
 #endif

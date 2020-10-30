@@ -9,6 +9,11 @@ global array2d_init         ; initializes array of needed size in memory
 global array2d_delete       ; deletes an array2d* (param rdi - array2d* to delete)
 global array2d_get_item_ptr ; returns pointer to an item with given coordinates
 
+global array2d_add_rows       ; add rows to the array2d
+global array2d_add_columns    ; add columns to the array2d
+global array2d_remove_rows    ; remove rows from the array2d
+global array2d_remove_columns ; remove columns from the array2d
+
 
 segment .text
     array2d_init:
@@ -25,8 +30,9 @@ segment .text
         mov ecx, edx
         mul esi
         mul rcx
-        push rax
         add rax, ARRAY2D_SIZE
+        push rax
+        mov rdi, rax
         call malloc
         mov rdi, rax
         call check_pointer_after_malloc
@@ -36,13 +42,14 @@ segment .text
         mov rdi, rax
         xor eax, eax
         rep stosb
+        mov rax, rdx
         
         pop rcx
-        mov [rdx + array2d.item_size], cx
+        mov [rax + array2d.item_size], cx
         pop rcx
-        mov [rdx + array2d.y_size], ecx
+        mov [rax + array2d.y_size], ecx
         pop rcx
-        mov [rdx + array2d.x_size], ecx
+        mov [rax + array2d.x_size], ecx
 
         ret
     
@@ -65,14 +72,17 @@ segment .text
         cmp rdx, r8
         jnl gip_return_nullptr
 
+        mov r10, rdx
         mov eax, esi
-        movzx r8, word [rdi + array2d.item_size]  ; r8 - item size
+        movzx r8, word [rdi + array2d.item_size]  ; r8 = item size
         mul r8d
-        mov r9, rax  ; r9 - x_coord * item_size
+        mov r9, rax  ; r9 = x_coord * item_size
         mov eax, [rdi + array2d.x_size]
         mul r8d
-        mul edx
+        mul r10d
         add rax, r9
+        add rax, array2d.data
+        add rax, rdi
 
         jmp gip_exit_normally
         gip_return_nullptr:
@@ -81,8 +91,30 @@ segment .text
 
         ret
     
-    array2d_add_row:  ; TODO
+    array2d_add_rows:  ; TODO
+        ; param rdi - array2d*
+        ; param rsi - number of rows to add
+        ; param rdx - side (0 - top, 1 - bottom)
+        ; returns new array2d*
         ret
     
-    array2d_add_column:  ; TODO
+    array2d_add_columns:  ; TODO
+        ; param rdi - array2d*
+        ; param rsi - number of columns to add
+        ; param rdx - side (0 - left, 1 - right)
+        ; returns new array2d*
+        ret
+    
+    array2d_remove_rows:  ; TODO
+        ; param rdi - array2d*
+        ; param rsi - number of rows to remove
+        ; param rdx - side (0 - top, 1 - bottom)
+        ; returns new array2d*
+        ret
+    
+    array2d_remove_columns:  ; TODO
+        ; param rdi - array2d*
+        ; param rsi - number of columns to remove
+        ; param rdx - side (0 - left, 1 - right)
+        ; returns new array2d*
         ret
