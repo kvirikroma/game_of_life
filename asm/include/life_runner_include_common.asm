@@ -9,6 +9,7 @@ struc life_runner
     .min_neighbors_to_be_born   resb 1
     .max_neighbors_to_be_born   resb 1
     .neighbors_that_matter      resb 1
+    .disable_cyclic_adressing   resb 1
 endstruc
 
 

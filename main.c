@@ -12,7 +12,7 @@
 int main()
 {
     life_drawer drawer;
-    life_drawer_init(&drawer, 1600, 900, 128, 72);
+    life_drawer_init(&drawer, 1600, 900, 512, 288);
     
     bool run = true;
     bool pause = true;
@@ -85,17 +85,17 @@ int main()
             life_drawer_redraw(&drawer);
         }
 
-        if (!pause)
+        if (!pause && !lmb_pressed && !rmb_pressed)
         {
             life_runner_make_step(&drawer.game);
             life_drawer_redraw(&drawer);
-            usleep(1000 * 100);
+            usleep(1000 * 64);
         }
         else
         {
             if (!lmb_pressed && !rmb_pressed)
             {
-                usleep(1000 * 50);
+                usleep(1000 * 32);
             }
         }
     }

@@ -14,6 +14,7 @@ typedef struct
     uint8_t min_neighbors_to_be_born;
     uint8_t max_neighbors_to_be_born;
     uint8_t neighbors_that_matter;
+    uint8_t disable_cyclic_adressing;
 }
 life_runner;
 

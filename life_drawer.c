@@ -102,7 +102,7 @@ void life_drawer_redraw(life_drawer* self)
         for (uint32_t x = 0; x < self->visual_cells->x_size; x++)
         {
             SDL_Rect* rect = (SDL_Rect*)array2d_get_item_ptr(self->visual_cells, x, y);
-            if (bit_array2d_get_bit(self->game.field, x, y))
+            if (bit_array2d_get_bit(self->game.field, x, y, 0))
             {
                 SDL_FillRect(screen_surface, rect, SDL_MapRGB(screen_surface->format, 255, 255, 255));
             }

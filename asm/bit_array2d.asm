@@ -9,9 +9,11 @@ global bit_array2d_init     ; initializes array of needed size in memory
 global bit_array2d_delete   ; deletes an bit_array2d* (param rdi - bit_array2d* to delete)
 global bit_array2d_get_bit  ; returns value of bit by its coordinates
 global bit_array2d_set_bit  ; sets bit value by its coordinates
-global bit_array2d_coordinates_to_index ;represent (x, y) coordinates as index in the field
-global bit_field_get_bit    ;get value of bit by number
-global bit_field_set_bit    ;set value of bit by number
+global bit_array2d_coordinates_to_index ; represent (x, y) coordinates as index in the field
+global bit_field_get_bit    ; get value of bit by number
+global bit_field_set_bit    ; set value of bit by number
+global bit_array2d_resize   ; change size of bit_array2d (frees old and returns new one)
+global bit_array2d_copy_content ; copy bits from one array to another with an offset
 
 
 segment .text
@@ -136,13 +138,31 @@ segment .text
         ; param rdi - bit_array2d*
         ; param rsi - coordinate by X axis (in bits)
         ; param rdx - coordinate by Y axis (in bits)
+        ; param rcx - disable cycle adressing
         ; returns 0 or 1 (bit value)
+        cmp rcx, 0
+        je enabled_cycle_addressing
+            cmp esi, 0
+            jl return_0
+            cmp edx, 0
+            jl return_0
+            cmp esi, [rdi + bit_array2d.x_size]
+            jnl return_0
+            cmp edx, [rdi + bit_array2d.y_size]
+            jnl return_0
+        enabled_cycle_addressing:
+
         push rdi
         call bit_array2d_coordinates_to_index
         pop rdi
         add rdi, bit_array2d.data
         mov rsi, rax
         call bit_field_get_bit
+
+        jmp end_return
+        return_0:
+            xor eax, eax
+        end_return:
 
         ret
 
@@ -158,6 +178,7 @@ segment .text
 
         push rdi
         push rcx
+        xor ecx, ecx
         call bit_array2d_coordinates_to_index
         pop rdx
         pop rdi
@@ -165,4 +186,84 @@ segment .text
         mov rsi, rax
         call bit_field_set_bit
 
+        ret
+    
+    bit_array2d_copy_content:
+        ; param rdi - bit_array2d* dest
+        ; param rsi - bit_array2d* source
+        ; param rdx - offset by X axis
+        ; param rcx - offset by Y axis
+        push rbp
+        mov rbp, rsp
+
+        push rdi  ; [rbp-8] - dest
+        push rsi  ; [rbp-16] - source
+        push rdx  ; [rbp-24] - x offset
+        push rcx  ; [rbp-32] - y offset
+
+        mov ecx, [rdi + bit_array2d.y_size]
+        walking_through_lines:
+            push rcx  ; [rbp-40] - lines left
+            mov rdi, [rbp-8]
+            mov ecx, [rdi + bit_array2d.x_size]
+            walking_through_columns:
+                push rcx  ; [rbp-48] - columns left
+                
+                mov rdi, [rbp-8]
+                sub ecx, [rdi + bit_array2d.x_size]
+                neg ecx
+                mov edx, [rbp-40]
+                sub edx, [rdi + bit_array2d.y_size]
+                neg edx
+                mov rsi, rcx
+                sub rsi, [rbp-24]
+                sub rdx, [rbp-32]
+                mov ecx, 1
+                mov rdi, [rbp-16]
+                call bit_array2d_get_bit
+                mov rdi, [rbp-8]
+                mov esi, [rbp-48]
+                sub esi, [rdi + bit_array2d.x_size]
+                neg esi
+                mov edx, [rbp-40]
+                sub edx, [rdi + bit_array2d.y_size]
+                neg edx
+                mov rcx, rax
+                call bit_array2d_set_bit
+
+                pop rcx  ; deleted [rbp-48]
+                loop walking_through_columns
+            pop rcx  ; deleted [rbp-40]
+            loop walking_through_lines
+        
+        leave
+        ret
+    
+    bit_array2d_resize:
+        ; param rdi - bit_array2d*
+        ; param rsi - size by X axis (in bits)
+        ; param rdx - size by Y axis (in bits)
+        ; param ecx - offset to move by X axis (not cycled)
+        ; param r8d - offset to move by Y axis (not cycled)
+        push rbp
+        mov rbp, rsp
+
+        push rcx  ; [rbp-8] - x offset
+        push r8  ; [rbp-16] - y offset
+        
+        push rdi  ; [rbp-24] - source
+        mov edi, esi
+        mov esi, edx
+        call bit_array2d_init
+        push rax  ; [rbp-32] - destination
+        mov rsi, [rbp-24]
+        mov rdi, rax
+        mov edx, [rbp-8]
+        mov ecx, [rbp-16]
+        call bit_array2d_copy_content
+        mov rdi, [rbp-24]
+        call bit_array2d_delete
+        pop rax  ; deleted [rbp-32]
+
+        leave
         ret

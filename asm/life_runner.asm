@@ -26,6 +26,7 @@ segment .text
         mov byte [rdi + life_runner.max_neighbors_to_be_born], 3
         mov byte [rdi + life_runner.min_neighbors_to_exist], 2
         mov byte [rdi + life_runner.max_neighbors_to_exist], 3
+        mov byte [rdi + life_runner.disable_cyclic_adressing], 0
         ret
 
     life_runner_delete:
@@ -54,7 +55,9 @@ segment .text
         %endmacro
 
         %macro save_bit 1
+            movzx eax, byte [rdi + life_runner.disable_cyclic_adressing]
             mov rdi, rcx
+            mov ecx, eax
             call bit_array2d_get_bit
             shl al, %1
             or [rbp-32], al
@@ -64,7 +67,9 @@ segment .text
         mov rcx, [rdi + life_runner.field]
         dec esi
         dec edx
+        movzx eax, byte [rdi + life_runner.disable_cyclic_adressing]
         mov rdi, rcx
+        mov ecx, eax
         call bit_array2d_get_bit
         push rax  ; [rbp-32] - result
 
@@ -174,7 +179,7 @@ segment .text
             walking_through_columns:
                 push rcx  ; [rbp-56] - (length) minus (current column (X coordinate))
                 
-                mov rdi, [rbp-8]
+                mov rdi, runner
                 mov rsi, x_size
                 sub rsi, rcx
                 mov rdx, y_size

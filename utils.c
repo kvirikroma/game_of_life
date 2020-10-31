@@ -31,7 +31,7 @@ void print_field(bit_array2d* field)
     {
         for (uint32_t x = 0; x < field->x_size; x++)
         {
-            printf("%d ", bit_array2d_get_bit(field, x, y));
+            printf("%d ", bit_array2d_get_bit(field, x, y, 0));
         }
         printf("\n");
     }

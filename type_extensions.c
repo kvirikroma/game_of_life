@@ -11,7 +11,7 @@ void life_runner_move_game(life_runner* self, direction move_direction, uint32_t
     {
         for (uint32_t x = 0; x < self->field->x_size; x++)
         {
-            if (bit_array2d_get_bit(self->field, x, y))
+            if (bit_array2d_get_bit(self->field, x, y, 0))
             {
                 switch (move_direction)
                 {
