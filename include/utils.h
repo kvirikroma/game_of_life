@@ -2,6 +2,7 @@
 #define UTILS_H
 
 #include "bit_array2d.h"
+#include "array2d.h"
 
 
 // Print error message and exit with code 1

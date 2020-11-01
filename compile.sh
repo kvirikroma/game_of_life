@@ -34,7 +34,7 @@ cd ../
 rm -rf ./compiler_symlinks
 cd ../
 
-gcc -m64 -no-pie -gdwarf-2 -o ./game_of_life ./*.c ./asm/*.o -Bstatic -lSDL2
+gcc -m64 -no-pie -gdwarf-2 -o ./game_of_life ./*.c ./asm/*.o -Bstatic -lSDL2 -lm
 
 rm -rf ./asm/*.o
 rm -rf ./*.o

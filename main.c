@@ -2,21 +2,20 @@
 #include <stdlib.h>
 
 #include "include/bit_array2d.h"
-#include "include/array2d.h"
 #include "include/life_runner.h"
 #include "include/utils.h"
 #include "include/life_drawer.h"
 #include "include/key_handlers.h"
 
 
-#define PIXELS_PER_MS 10000
+#define PIXELS_PER_MS 8000
 
 
 int main()
 {
     life_drawer drawer;
     life_drawer_init(&drawer, 1600, 900, 512, 288);
-    uint32_t game_speed = 50; //not less then 45
+    uint32_t game_slowdown = 40;
     
     bool run = true;
     bool pause = true;
@@ -73,7 +72,8 @@ int main()
             uint32_t x;
             uint32_t y;
             SDL_GetMouseState(&x, &y);
-            life_drawer_change_cell(&drawer, x, y, lmb_pressed, true);
+            life_drawer_change_cell(&drawer, x, y, lmb_pressed);
+            life_drawer_redraw(&drawer);
         }
 
         if (move)
@@ -87,11 +87,10 @@ int main()
                 }
                 if (!lmb_pressed && !rmb_pressed && !pressed_keys.alt)
                 {
-                    distance *= 3;
+                    distance *= 2;
                 }
                 life_runner_move_game(&drawer.game, movement, distance);
                 life_drawer_redraw(&drawer);
-                sleep_ms(game_speed - 44);
             }
             moved_once = true;
         }
@@ -102,7 +101,7 @@ int main()
 
         if (!lmb_pressed && !rmb_pressed)
         {
-            uint8_t ms = game_speed;
+            int16_t ms = game_slowdown;
             if (!pause)
             {
                 life_runner_make_step(&drawer.game);
@@ -110,6 +109,10 @@ int main()
                 {
                     life_drawer_redraw(&drawer);
                     ms -= (drawer.game.field->x_size * drawer.game.field->y_size) / PIXELS_PER_MS;
+                    if (ms < 0)
+                    {
+                        ms = 0;
+                    }
                 }
             }
             sleep_ms(ms);
