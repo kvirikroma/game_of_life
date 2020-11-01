@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "include/bit_array2d.h"
 #include "include/array2d.h"
@@ -48,4 +49,9 @@ void print_array2d(array2d* array)
         }
         printf("\n");
     }
+}
+
+void sleep_ms(uint32_t milliseconds)
+{
+    usleep(1000 * milliseconds);
 }

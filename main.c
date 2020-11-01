@@ -1,23 +1,32 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 
 #include "include/bit_array2d.h"
 #include "include/array2d.h"
 #include "include/life_runner.h"
 #include "include/utils.h"
 #include "include/life_drawer.h"
+#include "include/key_handlers.h"
+
+
+#define PIXELS_PER_MS 10000
 
 
 int main()
 {
     life_drawer drawer;
-    life_drawer_init(&drawer, 1600, 900, 512, 288);
+    life_drawer_init(&drawer, 1600, 900, 400, 225);
+    uint32_t game_speed = 50; //not less then 45
     
     bool run = true;
     bool pause = true;
     bool lmb_pressed = false;
     bool rmb_pressed = false;
+
+    bool moved_once = false;
+    direction movement;
+    bool move = false;
+
     SDL_Event event;
     while (run)
     {
@@ -29,19 +38,11 @@ int main()
             }
             if (event.type == SDL_KEYDOWN)
             {
-                switch (event.key.keysym.sym)
-                {
-                    case SDLK_SPACE:
-                    {
-                        pause = !pause;
-                        break;
-                    }
-                    
-                    default:
-                    {
-                        break;
-                    }
-                }
+                keydown_handler(event.key.keysym.sym, &pause, &movement, &move);
+            }
+            if (event.type == SDL_KEYUP)
+            {
+                keyup_handler(event.key.keysym.sym, &pause, &movement, &move);
             }
             if (event.type == SDL_MOUSEBUTTONDOWN)
             {
@@ -67,36 +68,51 @@ int main()
             }
         }
 
-        bool value_to_set;
-        if (lmb_pressed)
-        {
-            value_to_set = 1;
-        }
-        if (rmb_pressed)
-        {
-            value_to_set = 0;
-        }
-        if (lmb_pressed || rmb_pressed)
+        if (lmb_pressed ^ rmb_pressed)
         {
             uint32_t x;
             uint32_t y;
             SDL_GetMouseState(&x, &y);
-            life_drawer_change_cell(&drawer, x, y, value_to_set);
-            life_drawer_redraw(&drawer);
+            life_drawer_change_cell(&drawer, x, y, lmb_pressed, true);
         }
 
-        if (!pause && !lmb_pressed && !rmb_pressed)
+        if (move)
         {
-            life_runner_make_step(&drawer.game);
-            life_drawer_redraw(&drawer);
-            usleep(1000 * 64);
+            if ((!moved_once && pressed_keys.alt) || !pressed_keys.alt)
+            {
+                uint8_t distance = 1;
+                if (pressed_keys.shift)
+                {
+                    distance = 4;
+                }
+                if (!lmb_pressed && !rmb_pressed)
+                {
+                    distance *= 3;
+                }
+                life_runner_move_game(&drawer.game, movement, distance);
+                life_drawer_redraw(&drawer);
+                sleep_ms(game_speed - 44);
+            }
+            moved_once = true;
         }
         else
         {
-            if (!lmb_pressed && !rmb_pressed)
+            moved_once = false;
+        }
+
+        if (!lmb_pressed && !rmb_pressed)
+        {
+            uint8_t ms = game_speed;
+            if (!pause)
             {
-                usleep(1000 * 32);
+                life_runner_make_step(&drawer.game);
+                if (!move)
+                {
+                    life_drawer_redraw(&drawer);
+                    ms -= (drawer.game.field->x_size * drawer.game.field->y_size) / PIXELS_PER_MS;
+                }
             }
+            sleep_ms(ms);
         }
     }
 
