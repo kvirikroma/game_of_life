@@ -115,6 +115,7 @@ void life_drawer_init(life_drawer* self, uint32_t pixels_x, uint32_t pixels_y, u
 
 void life_drawer_delete(life_drawer* self)
 {
+    array2d_delete(self->visual_cells);
     life_runner_delete(&self->game);
     SDL_DestroyWindow(self->window);
     SDL_Quit();

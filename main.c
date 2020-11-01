@@ -15,7 +15,7 @@
 int main()
 {
     life_drawer drawer;
-    life_drawer_init(&drawer, 1600, 900, 400, 225);
+    life_drawer_init(&drawer, 1600, 900, 512, 288);
     uint32_t game_speed = 50; //not less then 45
     
     bool run = true;
@@ -85,7 +85,7 @@ int main()
                 {
                     distance = 4;
                 }
-                if (!lmb_pressed && !rmb_pressed)
+                if (!lmb_pressed && !rmb_pressed && !pressed_keys.alt)
                 {
                     distance *= 3;
                 }
@@ -106,7 +106,7 @@ int main()
             if (!pause)
             {
                 life_runner_make_step(&drawer.game);
-                if (!move)
+                if (!move || moved_once)
                 {
                     life_drawer_redraw(&drawer);
                     ms -= (drawer.game.field->x_size * drawer.game.field->y_size) / PIXELS_PER_MS;
