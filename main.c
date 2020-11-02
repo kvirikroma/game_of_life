@@ -29,7 +29,9 @@ int main()
 
     io_threader threader;
     io_threader_init(&threader, 1600, 900, 512, 288, &lmb_pressed, &rmb_pressed, &move);
-    sleep_ms(1);
+    io_threader_input_pause(&threader);
+    sleep_ms(5);
+    io_threader_input_unpause(&threader);
 
     SDL_Event event;
     while (run)
@@ -88,7 +90,6 @@ int main()
                 io_threader_output_pause(&threader);
                 life_runner_move_game(&threader.drawer.game, movement, distance);
                 io_threader_output_unpause(&threader);
-                //life_drawer_redraw(&drawer);
             }
             moved_once = true;
         }
@@ -102,15 +103,16 @@ int main()
             if (!pause)
             {
                 io_threader_output_pause(&threader);
+                io_threader_input_pause(&threader);
                 life_runner_make_step(&threader.drawer.game);
                 io_threader_output_unpause(&threader);
+                io_threader_input_unpause(&threader);
             }
         }
 
         int16_t ms = game_slowdown;
         if (!move || moved_once)
         {
-            //life_drawer_redraw(&drawer);
             ms -= (threader.drawer.game.field->x_size * threader.drawer.game.field->y_size) / PIXELS_PER_MS;
             if (ms < 0)
             {
@@ -121,6 +123,5 @@ int main()
     }
 
     io_threader_delete(&threader);
-    //life_drawer_delete(&drawer);
     return 0;
 }

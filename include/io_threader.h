@@ -16,10 +16,10 @@ typedef struct
     uint32_t window_y;
     uint32_t cells_x;
     uint32_t cells_y;
-    bool output_pause;
-    bool output_pause_response;
-    bool input_pause;
-    bool input_pause_response;
+    volatile bool output_pause;
+    volatile bool output_pause_response;
+    volatile bool input_pause;
+    volatile bool input_pause_response;
     bool* lmb_pressed;
     bool* rmb_pressed;
     bool* move;
