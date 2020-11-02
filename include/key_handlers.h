@@ -20,9 +20,9 @@ extern control_keys pressed_keys;
 
 
 // Handler for keydown event
-void keydown_handler(SDL_Keycode key, volatile bool* pause, volatile direction* movement, volatile bool* move);
+void keydown_handler(SDL_Keycode key, bool* pause, direction* movement, bool* move);
 
 // Handler for keyup event
-void keyup_handler(SDL_Keycode key, volatile bool* pause, volatile direction* movement,volatile bool* move);
+void keyup_handler(SDL_Keycode key, bool* pause, direction* movement, bool* move);
 
 #endif

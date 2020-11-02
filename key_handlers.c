@@ -4,7 +4,7 @@
 control_keys pressed_keys = (control_keys){0, 0, 0, 0, 0, 0, 0};
 
 
-void movement_by_keys(volatile direction* movement, volatile bool* move)
+void movement_by_keys(direction* movement, bool* move)
 {
     bool move_horizontal = pressed_keys.left ^ pressed_keys.right;
     bool move_vertical = pressed_keys.up ^ pressed_keys.down;
@@ -61,7 +61,7 @@ void movement_by_keys(volatile direction* movement, volatile bool* move)
 }
 
 
-void keydown_handler(SDL_Keycode key, volatile bool* pause, volatile direction* movement,volatile bool* move)
+void keydown_handler(SDL_Keycode key, bool* pause, direction* movement, bool* move)
 {
     switch (key)
     {
@@ -130,7 +130,7 @@ void keydown_handler(SDL_Keycode key, volatile bool* pause, volatile direction* 
 }
 
 
-void keyup_handler(SDL_Keycode key, volatile bool* pause, volatile direction* movement, volatile bool* move)
+void keyup_handler(SDL_Keycode key, bool* pause, direction* movement, bool* move)
 {
     switch (key)
     {
