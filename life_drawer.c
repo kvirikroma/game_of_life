@@ -3,7 +3,7 @@
 #include "include/life_drawer.h"
 
 
-void life_drawer_init(life_drawer* self, uint32_t pixels_x, uint32_t pixels_y, uint32_t cells_x, uint32_t cells_y)
+void life_drawer_init(volatile life_drawer* self, uint32_t pixels_x, uint32_t pixels_y, uint32_t cells_x, uint32_t cells_y)
 {
     life_runner_init(&self->game, cells_x, cells_y);
 
@@ -27,14 +27,14 @@ void life_drawer_init(life_drawer* self, uint32_t pixels_x, uint32_t pixels_y, u
 }
 
 
-void life_drawer_delete(life_drawer* self)
+void life_drawer_delete(volatile life_drawer* self)
 {
     life_runner_delete(&self->game);
     SDL_DestroyWindow(self->window);
     SDL_Quit();
 }
 
-void life_drawer_redraw(life_drawer* self)
+void life_drawer_redraw(volatile const life_drawer* self)
 {
     SDL_Surface* screen_surface = SDL_GetWindowSurface(self->window);
     SDL_FillRect(screen_surface, NULL, SDL_MapRGB(screen_surface->format, 0, 0, 0));
@@ -57,7 +57,7 @@ void life_drawer_redraw(life_drawer* self)
 }
 
 
-void life_drawer_set_visual_cell(life_drawer* self, uint32_t cell_x, uint32_t cell_y, bool value)
+void life_drawer_set_visual_cell(volatile life_drawer* self, uint32_t cell_x, uint32_t cell_y, bool value)
 {
     SDL_Surface* screen_surface = SDL_GetWindowSurface(self->window);
     coordinates cell_size;
@@ -78,7 +78,7 @@ void life_drawer_set_visual_cell(life_drawer* self, uint32_t cell_x, uint32_t ce
 }
 
 
-void life_drawer_change_cell(life_drawer* self, uint32_t pixel_x, uint32_t pixel_y, bool value)
+void life_drawer_change_cell(volatile life_drawer* self, uint32_t pixel_x, uint32_t pixel_y, bool value)
 {
     pixel_x = (uint32_t)round(self->size_ratio_x * pixel_x);
     pixel_y = (uint32_t)round(self->size_ratio_y * pixel_y);
@@ -104,6 +104,6 @@ void life_drawer_change_cell(life_drawer* self, uint32_t pixel_x, uint32_t pixel
     }
 }
 
-void life_drawer_change_window_size(life_drawer* self, uint32_t pixels_x, uint32_t pixels_y);  // TODO
+void life_drawer_change_window_size(volatile life_drawer* self, uint32_t pixels_x, uint32_t pixels_y);  // TODO
 
-void life_drawer_change_game_size(life_drawer* self, uint32_t cells_x, uint32_t cells_y);  // TODO
+void life_drawer_change_game_size(volatile life_drawer* self, uint32_t cells_x, uint32_t cells_y);  // TODO
