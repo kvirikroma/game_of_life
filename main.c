@@ -6,6 +6,7 @@
 #include "include/utils.h"
 #include "include/life_drawer.h"
 #include "include/key_handlers.h"
+#include "include/io_threader.h"
 
 
 #define PIXELS_PER_MS 8000
@@ -13,8 +14,8 @@
 
 int main()
 {
-    life_drawer drawer;
-    life_drawer_init(&drawer, 1600, 900, 512, 288);
+    //life_drawer drawer;
+    //life_drawer_init(&drawer, 1600, 900, 512, 288);
     uint32_t game_slowdown = 40;
     
     bool run = true;
@@ -25,6 +26,10 @@ int main()
     bool moved_once = false;
     direction movement;
     bool move = false;
+
+    io_threader threader;
+    io_threader_init(&threader, 1600, 900, 512, 288, &lmb_pressed, &rmb_pressed, &move);
+    sleep_ms(1);
 
     SDL_Event event;
     while (run)
@@ -67,15 +72,6 @@ int main()
             }
         }
 
-        if (lmb_pressed ^ rmb_pressed)
-        {
-            uint32_t x;
-            uint32_t y;
-            SDL_GetMouseState(&x, &y);
-            life_drawer_change_cell(&drawer, x, y, lmb_pressed);
-            life_drawer_redraw(&drawer);
-        }
-
         if (move)
         {
             if ((!moved_once && pressed_keys.alt) || !pressed_keys.alt)
@@ -89,8 +85,10 @@ int main()
                 {
                     distance *= 2;
                 }
-                life_runner_move_game(&drawer.game, movement, distance);
-                life_drawer_redraw(&drawer);
+                io_threader_output_pause(&threader);
+                life_runner_move_game(&threader.drawer.game, movement, distance);
+                io_threader_output_unpause(&threader);
+                //life_drawer_redraw(&drawer);
             }
             moved_once = true;
         }
@@ -101,24 +99,28 @@ int main()
 
         if (!lmb_pressed && !rmb_pressed)
         {
-            int16_t ms = game_slowdown;
             if (!pause)
             {
-                life_runner_make_step(&drawer.game);
-                if (!move || moved_once)
-                {
-                    life_drawer_redraw(&drawer);
-                    ms -= (drawer.game.field->x_size * drawer.game.field->y_size) / PIXELS_PER_MS;
-                    if (ms < 0)
-                    {
-                        ms = 0;
-                    }
-                }
+                io_threader_output_pause(&threader);
+                life_runner_make_step(&threader.drawer.game);
+                io_threader_output_unpause(&threader);
             }
-            sleep_ms(ms);
         }
+
+        int16_t ms = game_slowdown;
+        if (!move || moved_once)
+        {
+            //life_drawer_redraw(&drawer);
+            ms -= (threader.drawer.game.field->x_size * threader.drawer.game.field->y_size) / PIXELS_PER_MS;
+            if (ms < 0)
+            {
+                ms = 0;
+            }
+        }
+        sleep_ms(ms);
     }
 
-    life_drawer_delete(&drawer);
+    io_threader_delete(&threader);
+    //life_drawer_delete(&drawer);
     return 0;
 }
