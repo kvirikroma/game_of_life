@@ -8,7 +8,7 @@
 
 typedef struct
 {
-    life_drawer drawer;
+    volatile life_drawer drawer;
     bool stop_flag;
     pthread_t input_thread;
     pthread_t output_thread;
