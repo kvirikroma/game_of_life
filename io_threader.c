@@ -26,6 +26,7 @@ void io_threader_delete(io_threader* self)
 void io_threader_lock_drawer(io_threader* self)
 {
     pthread_mutex_lock((pthread_mutex_t*)&self->drawer_lock);
+    sleep_ms(0.01);
 }
 
 
@@ -55,7 +56,7 @@ void* input_thread_function(void* parameters)
             life_drawer_change_cell(&self->drawer, mouse.x, mouse.y, value);
             io_threader_unlock_drawer(self);
         }
-        sleep_ms(0.01);
+        sleep_ms(0.001);
     }
     return 0;
 }

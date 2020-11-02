@@ -26,8 +26,11 @@ int main()
     io_threader_init(&threader, 1600, 900, 512, 288, &lmb_pressed, &rmb_pressed, &move);
 
     io_threader_lock_drawer(&threader);
-    sleep_ms(1);
-    //set rules here
+    threader.drawer.game.min_neighbors_to_be_born = 1;
+    threader.drawer.game.max_neighbors_to_be_born = 1;
+    threader.drawer.game.min_neighbors_to_exist = 0;
+    threader.drawer.game.max_neighbors_to_exist = 8; // or 4
+    threader.drawer.game.neighbors_that_matter = 0b01011010;
     io_threader_unlock_drawer(&threader);
 
     SDL_Event event;
