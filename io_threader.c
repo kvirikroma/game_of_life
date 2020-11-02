@@ -9,47 +9,44 @@ void io_threader_init(io_threader* self, uint32_t window_x, uint32_t window_y, u
     self->window_y = window_y;
     self->cells_x = cells_x;
     self->cells_y = cells_y;
-    self->output_pause = false;
     self->lmb_pressed = lmb_pressed;
     self->rmb_pressed = rmb_pressed;
     self->move = move;
+    self->input_drawer_lock = false;
+    self->output_drawer_lock = false;
     pthread_create(&self->output_thread, NULL, output_thread_function, self);
 }
 
 void io_threader_delete(io_threader* self)
 {
-    io_threader_output_pause(self);
-    io_threader_input_pause(self);
     self->stop_flag = true;
     pthread_join(self->output_thread, NULL);
 }
 
 
-void io_threader_output_pause(io_threader* self)
+void io_threader_input_lock_drawer(io_threader* self)
 {
-    self->output_pause = true;
-    self->output_pause_response = false;
-    while(!(const volatile bool)self->output_pause_response);
+    while((const volatile bool)self->output_drawer_lock && !self->stop_flag);
+    self->input_drawer_lock = true;
 }
 
 
-void io_threader_output_unpause(io_threader* self)
+void io_threader_input_unlock_drawer(io_threader* self)
 {
-    self->output_pause = false;
+    self->input_drawer_lock = false;
 }
 
 
-void io_threader_input_pause(io_threader* self)
+void io_threader_output_lock_drawer(io_threader* self)
 {
-    self->input_pause = true;
-    self->input_pause_response = false;
-    while(!(const volatile bool)self->input_pause_response);
+    while((const volatile bool)self->input_drawer_lock && !self->stop_flag);
+    self->output_drawer_lock = true;
 }
 
 
-void io_threader_input_unpause(io_threader* self)
+void io_threader_output_unlock_drawer(io_threader* self)
 {
-    self->input_pause = false;
+    self->output_drawer_lock = false;
 }
 
 
@@ -58,29 +55,25 @@ void* input_thread_function(void* parameters)
     io_threader* self = (io_threader*)parameters;
     while (!(const volatile bool)self->stop_flag)
     {
-        if (!(const volatile bool)self->input_pause)
+        if (*self->lmb_pressed ^ *self->rmb_pressed)
         {
-            self->input_pause_response = false;
-            if (*self->lmb_pressed ^ *self->rmb_pressed)
+            uint32_t x;
+            uint32_t y;
+            SDL_GetMouseState(&x, &y);
+            io_threader_input_lock_drawer(self);
+            if (self->stop_flag)
             {
-                io_threader_output_pause(self);
-                uint32_t x;
-                uint32_t y;
-                SDL_GetMouseState(&x, &y);
-                life_drawer_change_cell(&self->drawer, x, y, *self->lmb_pressed);
-                if (*self->move)
-                {
-                    io_threader_output_unpause(self);
-                }
+                return 0;
+            }
+            life_drawer_change_cell(&self->drawer, x, y, *self->lmb_pressed);
+            if (*self->move)
+            {
+                io_threader_input_unlock_drawer(self);
             }
         }
         else
         {
-            io_threader_output_unpause(self);
-            if (!(const volatile bool)self->input_pause_response)
-            {
-                self->input_pause_response = true;
-            }
+            io_threader_input_unlock_drawer(self);
         }
     }
     return 0;
@@ -94,18 +87,15 @@ void* output_thread_function(void* parameters)
     pthread_create(&self->input_thread, NULL, input_thread_function, self);
     while (!(const volatile bool)self->stop_flag)
     {
-        if (!(const volatile bool)self->output_pause)
+        io_threader_output_lock_drawer(self);
+        if (self->stop_flag)
         {
-            self->output_pause_response = false;
-            life_drawer_redraw(&self->drawer);
+            pthread_join(self->input_thread, NULL);
+            life_drawer_delete(&self->drawer);
+            return 0;
         }
-        else
-        {
-            if (!(const volatile bool)self->output_pause_response)
-            {
-                self->output_pause_response = true;
-            }
-        }
+        life_drawer_redraw(&self->drawer);
+        io_threader_output_unlock_drawer(self);
         SDL_UpdateWindowSurface(self->drawer.window);
         sleep_ms(5);
     }

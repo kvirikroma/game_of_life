@@ -29,9 +29,9 @@ int main()
 
     io_threader threader;
     io_threader_init(&threader, 1600, 900, 512, 288, &lmb_pressed, &rmb_pressed, &move);
-    io_threader_input_pause(&threader);
+    io_threader_input_lock_drawer(&threader);
     sleep_ms(5);
-    io_threader_input_unpause(&threader);
+    io_threader_input_unlock_drawer(&threader);
 
     SDL_Event event;
     while (run)
@@ -87,9 +87,11 @@ int main()
                 {
                     distance *= 2;
                 }
-                io_threader_output_pause(&threader);
+                io_threader_output_lock_drawer(&threader);
+                io_threader_input_lock_drawer(&threader);
                 life_runner_move_game(&threader.drawer.game, movement, distance);
-                io_threader_output_unpause(&threader);
+                io_threader_output_unlock_drawer(&threader);
+                io_threader_input_unlock_drawer(&threader);
             }
             moved_once = true;
         }
@@ -102,11 +104,11 @@ int main()
         {
             if (!pause)
             {
-                io_threader_output_pause(&threader);
-                io_threader_input_pause(&threader);
+                io_threader_output_lock_drawer(&threader);
+                io_threader_input_lock_drawer(&threader);
                 life_runner_make_step(&threader.drawer.game);
-                io_threader_output_unpause(&threader);
-                io_threader_input_unpause(&threader);
+                io_threader_output_unlock_drawer(&threader);
+                io_threader_input_unlock_drawer(&threader);
             }
         }
 
