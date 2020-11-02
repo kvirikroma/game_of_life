@@ -4,9 +4,9 @@
 #include "include/array2d.h"
 
 
-void life_runner_move_game(volatile life_runner* self, direction move_direction, uint32_t distance)
+void life_runner_move_game(life_runner* self, direction move_direction, uint32_t distance)
 {
-    volatile bit_array2d* new_field = bit_array2d_init(self->field->x_size, self->field->y_size);
+    bit_array2d* new_field = bit_array2d_init(self->field->x_size, self->field->y_size);
     for (uint32_t y = 0; y < self->field->y_size; y++)
     {
         for (uint32_t x = 0; x < self->field->x_size; x++)

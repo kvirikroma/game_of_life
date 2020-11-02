@@ -51,7 +51,7 @@ void print_array2d(array2d* array)
     }
 }
 
-void sleep_ms(uint32_t milliseconds)
+void sleep_ms(double milliseconds)
 {
     usleep(1000 * milliseconds);
 }

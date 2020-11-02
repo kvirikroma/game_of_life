@@ -18,6 +18,6 @@ void print_field(bit_array2d* field);
 void print_array2d(array2d* array);
 
 // Sleep given amount of milliseconds
-void sleep_ms(uint32_t milliseconds);
+void sleep_ms(double milliseconds);
 
 #endif
