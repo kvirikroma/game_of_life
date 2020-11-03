@@ -5,6 +5,9 @@ KEYBOARD:
     up arrow - move right across the field
     left arrow - move left across the field
     space - pause
+    s - save game to "saved_game.life"
+    l - load game from "saved_game.life"
+    1-9 buttons - change game speed x1 - x9 (warning: fps will drop)
 MOUSE:
     lmb - add a cell
     rmb - remove a cell

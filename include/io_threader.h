@@ -1,5 +1,5 @@
-#ifndef GRAPHICS_THREADDER_H
-#define GRAPHICS_THREADER_H
+#ifndef IO_THREADER_H
+#define IO_THREADER_H
 
 #include <pthread.h>
 
@@ -21,12 +21,13 @@ typedef struct
     bool* lmb_pressed;
     bool* rmb_pressed;
     bool* move;
+    uint8_t* speed;
     bool draw_line;
 }
 io_threader;
 
 
-void io_threader_init(io_threader* self, uint32_t window_x, uint32_t window_y, uint32_t cells_x, uint32_t cells_y, bool* lmb_pressed, bool* rmb_pressed, bool* move);
+void io_threader_init(io_threader* self, uint32_t window_x, uint32_t window_y, uint32_t cells_x, uint32_t cells_y, bool* lmb_pressed, bool* rmb_pressed, bool* move, uint8_t* speed);
 
 void io_threader_delete(io_threader* self);
 

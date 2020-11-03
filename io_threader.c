@@ -2,7 +2,7 @@
 #include "include/utils.h"
 
 
-void io_threader_init(io_threader* self, uint32_t window_x, uint32_t window_y, uint32_t cells_x, uint32_t cells_y, bool* lmb_pressed, bool* rmb_pressed, bool* move)
+void io_threader_init(io_threader* self, uint32_t window_x, uint32_t window_y, uint32_t cells_x, uint32_t cells_y, bool* lmb_pressed, bool* rmb_pressed, bool* move, uint8_t* speed)
 {
     self->stop_flag = false;
     self->window_x = window_x;
@@ -12,6 +12,7 @@ void io_threader_init(io_threader* self, uint32_t window_x, uint32_t window_y, u
     self->lmb_pressed = lmb_pressed;
     self->rmb_pressed = rmb_pressed;
     self->move = move;
+    self->speed = speed;
     pthread_mutex_init((pthread_mutex_t*)&self->drawer_lock, NULL);
     pthread_create((pthread_t*)&self->output_thread, NULL, output_thread_function, (void*)self);
 }
@@ -72,9 +73,9 @@ void* input_thread_function(void* parameters)
         else
         {
             self->draw_line = false;
-            sleep_ms(0.01);
+            sleep_ms(1);
         }
-        sleep_ms(0.001);
+        sleep_ms(0.01);
     }
     return 0;
 }
@@ -92,7 +93,7 @@ void* output_thread_function(void* parameters)
         io_threader_unlock_drawer(self);
 
         SDL_UpdateWindowSurface(self->drawer.window);
-        sleep_ms(3);
+        sleep_ms(2 + (*self->speed * 2));
     }
     pthread_join(self->input_thread, NULL);
     life_drawer_delete(&self->drawer);

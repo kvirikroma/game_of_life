@@ -5,7 +5,7 @@
 #include "include/life_runner.h"
 #include "include/utils.h"
 #include "include/life_drawer.h"
-#include "include/key_handlers.h"
+#include "include/key_handler.h"
 #include "include/io_threader.h"
 
 #define SAVEGAME_FILENAME "saved_game.life"
@@ -13,19 +13,22 @@
 
 int main()
 {
-    uint32_t game_slowdown = 25;  // min is 25
+    uint32_t step_delay = 20;  // minimum is 20
     
     bool run = true;
     bool pause = true;
     bool lmb_pressed = false;
     bool rmb_pressed = false;
+    uint8_t speed = 1;
 
     bool moved_once = false;
     direction movement;
     bool move = false;
+    key_handler keyhandler;
+    key_handler_init(&keyhandler, &pause, &movement, &move, &speed);
 
     io_threader threader;
-    io_threader_init(&threader, 1600, 900, 512, 288, &lmb_pressed, &rmb_pressed, &move);
+    io_threader_init(&threader, 1600, 900, 512, 288, &lmb_pressed, &rmb_pressed, &move, &speed);
 
     SDL_Event event;
     while (run)
@@ -80,11 +83,11 @@ int main()
                         break;
                     }
                 }
-                keydown_handler(event.key.keysym.sym, &pause, &movement, &move);
+                key_handler_down(&keyhandler, event.key.keysym.sym);
             }
             if (event.type == SDL_KEYUP)
             {
-                keyup_handler(event.key.keysym.sym, &pause, &movement, &move);
+                key_handler_up(&keyhandler, event.key.keysym.sym);
             }
             if (event.type == SDL_MOUSEBUTTONDOWN)
             {
@@ -112,14 +115,14 @@ int main()
 
         if (move)
         {
-            if ((!moved_once && pressed_keys.alt) || !pressed_keys.alt)
+            if ((!moved_once && keyhandler.pressed_keys.alt) || !keyhandler.pressed_keys.alt)
             {
                 uint8_t distance = 1;
-                if (pressed_keys.shift)
+                if (keyhandler.pressed_keys.shift)
                 {
                     distance = 4;
                 }
-                if (!lmb_pressed && !rmb_pressed && !pressed_keys.alt)
+                if (!lmb_pressed && !rmb_pressed && !keyhandler.pressed_keys.alt)
                 {
                     distance *= 2;
                 }
@@ -139,14 +142,17 @@ int main()
             if (!pause)
             {
                 io_threader_lock_drawer(&threader);
-                life_runner_make_step(&threader.drawer.game);
+                for (uint8_t step = 0; step < speed; step++)
+                {
+                    life_runner_make_step(&threader.drawer.game);
+                }
                 io_threader_unlock_drawer(&threader);
             }
         }
 
         if (!move || moved_once)
         {
-            sleep_ms(game_slowdown);
+            sleep_ms(step_delay - (speed * 2));
         }
     }
 
