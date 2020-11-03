@@ -19,19 +19,19 @@ void movement_by_keys(direction* movement, bool* move)
     {
         if (pressed_keys.up && pressed_keys.left)
         {
-            *movement = UP_LEFT;
+            *movement = DOWN_RIGHT;
         }
         else if (pressed_keys.down && pressed_keys.left)
         {
-            *movement = DOWN_LEFT;
+            *movement = UP_RIGHT;
         }
         else if (pressed_keys.up && pressed_keys.right)
         {
-            *movement = UP_RIGHT;
+            *movement = DOWN_LEFT;
         }
         else if (pressed_keys.down && pressed_keys.right)
         {
-            *movement = DOWN_RIGHT;
+            *movement = UP_LEFT;
         }
         return;
     }
@@ -40,22 +40,22 @@ void movement_by_keys(direction* movement, bool* move)
     {
         if (pressed_keys.up)
         {
-            *movement = UP;
+            *movement = DOWN;
         }
         else if (pressed_keys.down)
         {
-            *movement = DOWN;
+            *movement = UP;
         }
     }
     else if (move_horizontal)
     {
         if (pressed_keys.left)
         {
-            *movement = LEFT;
+            *movement = RIGHT;
         }
         else if (pressed_keys.right)
         {
-            *movement = RIGHT;
+            *movement = LEFT;
         }
     }
 }
