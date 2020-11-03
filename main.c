@@ -25,10 +25,6 @@ int main()
     io_threader threader;
     io_threader_init(&threader, 1600, 900, 512, 288, &lmb_pressed, &rmb_pressed, &move);
 
-    io_threader_lock_drawer(&threader);
-    //describe rules here
-    io_threader_unlock_drawer(&threader);
-
     SDL_Event event;
     while (run)
     {

@@ -4,3 +4,4 @@ game_of_life
 package/usr/sbin
 .vscode
 asm/compiler_symlinks
+.kdbg*

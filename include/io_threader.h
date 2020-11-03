@@ -17,9 +17,11 @@ typedef struct
     uint32_t cells_x;
     uint32_t cells_y;
     pthread_mutex_t drawer_lock;
+    coordinates last_mouse_position;
     bool* lmb_pressed;
     bool* rmb_pressed;
     bool* move;
+    bool draw_line;
 }
 io_threader;
 

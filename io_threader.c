@@ -20,6 +20,7 @@ void io_threader_delete(io_threader* self)
 {
     self->stop_flag = true;
     pthread_join(self->output_thread, NULL);
+    pthread_mutex_destroy((pthread_mutex_t*)&self->drawer_lock);
 }
 
 
@@ -39,22 +40,38 @@ void io_threader_unlock_drawer(io_threader* self)
 void* input_thread_function(void* parameters)
 {
     io_threader* self = (io_threader*)parameters;
-    coordinates mouse = (coordinates){0, 0};
-    while (!mouse.x && !mouse.y)
+    self->last_mouse_position = (coordinates){0, 0};
+    while (!self->last_mouse_position.x && !self->last_mouse_position.y)
     {
-        SDL_GetMouseState(&mouse.x, &mouse.y);
+        SDL_GetMouseState(&self->last_mouse_position.x, &self->last_mouse_position.y);
         sleep_ms(1);
     }
     while (!(const bool)self->stop_flag)
     {
+        bool lmb = *self->lmb_pressed;
         bool value = *self->lmb_pressed ^ *self->rmb_pressed;
         if (value)
         {
-            SDL_GetMouseState(&mouse.x, &mouse.y);
+            coordinates new_mouse_position;
+            SDL_GetMouseState(&new_mouse_position.x, &new_mouse_position.y);
 
             io_threader_lock_drawer(self);
-            life_drawer_change_cell(&self->drawer, mouse.x, mouse.y, value);
+            if (self->draw_line)
+            {
+                life_drawer_draw_line(&self->drawer, self->last_mouse_position, new_mouse_position, lmb);
+            }
+            else
+            {
+                life_drawer_change_cell(&self->drawer, new_mouse_position.x, new_mouse_position.y, lmb);
+                self->draw_line = true;
+            }
             io_threader_unlock_drawer(self);
+
+            self->last_mouse_position = new_mouse_position;
+        }
+        else
+        {
+            self->draw_line = false;
         }
         sleep_ms(0.001);
     }
@@ -77,7 +94,6 @@ void* output_thread_function(void* parameters)
         sleep_ms(2);
     }
     pthread_join(self->input_thread, NULL);
-    pthread_mutex_destroy((pthread_mutex_t*)&self->drawer_lock);
     life_drawer_delete(&self->drawer);
     return 0;
 }

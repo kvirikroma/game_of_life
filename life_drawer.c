@@ -85,21 +85,80 @@ void life_drawer_change_cell(life_drawer* self, uint32_t pixel_x, uint32_t pixel
     if ((pixel_x >= 0) && (pixel_y >= 0) && (pixel_x < self->game.field->x_size) && (pixel_y < self->game.field->y_size))
     {
         bit_array2d_set_bit(self->game.field, pixel_x, pixel_y, value);
-        SDL_Surface* screen_surface = SDL_GetWindowSurface(self->window);
-        SDL_Rect rect_to_fill;
-        rect_to_fill.w = round((double)1 / self->size_ratio_x);
-        rect_to_fill.h = round((double)1 / self->size_ratio_y);
-        rect_to_fill.x = round(pixel_x / self->size_ratio_x);
-        rect_to_fill.y = round(pixel_y / self->size_ratio_y);
-        if (value)
+    }
+}
+
+
+uint64_t min(uint64_t num1, uint64_t num2)
+{
+    if (num1 < num2)
+    {
+        return num1;
+    }
+    return num2;
+}
+
+
+uint64_t max(uint64_t num1, uint64_t num2)
+{
+    if (num1 > num2)
+    {
+        return num1;
+    }
+    return num2;
+}
+
+
+void life_drawer_draw_line(life_drawer* self, coordinates begin, coordinates end, bool value)
+{
+    int line_length_x = end.x - begin.x;
+    int line_length_y = end.y - begin.y;
+    double ratio = 0;
+    int x = 0;
+    int y = 0;
+    if (line_length_y && (abs(line_length_y) > abs(line_length_x)))
+    {
+        double ratio = (double)line_length_x / (double)line_length_y;
+        do
         {
-            SDL_FillRect(screen_surface, &rect_to_fill, SDL_MapRGB(screen_surface->format, 255, 255, 255));
+            x = round((double)y * ratio);
+            if (abs(x) > abs(line_length_x))
+            {
+                break;
+            }
+            life_drawer_change_cell(self, x + begin.x, y + begin.y, value);
+            if (line_length_y > 0)
+            {
+                y++;
+            }
+            else
+            {
+                y--;
+            }
         }
-        else
+        while ((abs(y) < abs(line_length_y) + 1) && (abs(x) < abs(line_length_x) + 1));
+    }
+    else if (line_length_x && (abs(line_length_x) > abs(line_length_y)))
+    {
+        double ratio = (double)line_length_y / (double)line_length_x;
+        do
         {
-            SDL_FillRect(screen_surface, &rect_to_fill, SDL_MapRGB(screen_surface->format, 0, 0, 0));
+            y = round((double)x * ratio);
+            life_drawer_change_cell(self, x + begin.x, y + begin.y, value);
+            if (line_length_x > 0)
+            {
+                x++;
+            }
+            else
+            {
+                x--;
+            }
         }
-        SDL_UpdateWindowSurfaceRects(self->window, &rect_to_fill, 1);
+        while ((abs(x) < abs(line_length_x) + 1) && (abs(y) < abs(line_length_y) + 1));
+    }
+    else
+    {
+        life_drawer_change_cell(self, begin.x, begin.y, value);
     }
 }
 

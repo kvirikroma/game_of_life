@@ -41,4 +41,7 @@ void life_drawer_change_game_size(life_drawer* self, uint32_t cells_x, uint32_t 
 // Change cell by coordinates of pixel
 void life_drawer_change_cell(life_drawer* self, uint32_t pixel_x, uint32_t pixel_y, bool value);
 
+// Draw line of cells or empty spaces on range of pixels
+void life_drawer_draw_line(life_drawer* self, coordinates begin, coordinates end, bool value);
+
 #endif
