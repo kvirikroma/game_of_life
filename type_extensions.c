@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdlib.h>
 
 #include "include/life_runner.h"
 #include "include/array2d.h"
@@ -134,4 +135,47 @@ array2d* array2d_remove_columns(array2d* source_array, uint32_t count, columns_s
     array2d_copy_content(new_array, source_array, offset, 0);
     array2d_delete(source_array);
     return new_array;
+}
+
+
+life_runner_snapshot life_runner_to_snapshot(life_runner* self)
+{
+    life_runner_snapshot result;
+    result.size = 6 +  // life_runner bytes that define config
+        ((self->field->x_size * self->field->y_size) >> 3) + 1 +  // size of bit part of bit_array2d
+        sizeof(bit_array2d);  // size of bit_array2d service part
+    result.data = (uint8_t*)malloc(result.size);
+    result.data[0] = self->max_neighbors_to_be_born;
+    result.data[1] = self->min_neighbors_to_be_born;
+    result.data[2] = self->max_neighbors_to_exist;
+    result.data[3] = self->min_neighbors_to_exist;
+    result.data[4] = self->neighbors_that_matter;
+    result.data[5] = self->disable_cyclic_adressing;
+    memcpy(result.data + 6, self->field, result.size - 6);
+    return result;
+}
+
+
+void life_runner_from_snapshot(life_runner* self, life_runner_snapshot snapshot, bool runner_was_initialized)
+{
+    self->max_neighbors_to_be_born = snapshot.data[0];
+    self->min_neighbors_to_be_born = snapshot.data[1];
+    self->max_neighbors_to_exist = snapshot.data[2];
+    self->min_neighbors_to_exist = snapshot.data[3];
+    self->neighbors_that_matter = snapshot.data[4];
+    self->disable_cyclic_adressing = snapshot.data[5];
+    if (runner_was_initialized)
+    {
+        bit_array2d_delete(self->field);
+    }
+    bit_array2d* array_in_data = (bit_array2d*)(snapshot.data + 6);
+    self->field = bit_array2d_init(array_in_data->x_size, array_in_data->y_size);
+    memcpy(self->field, array_in_data, snapshot.size - 6);
+}
+
+
+void life_runner_snapshot_delete(life_runner_snapshot* snapshot)
+{
+    free(snapshot->data);
+    *snapshot = (life_runner_snapshot){0, 0};
 }

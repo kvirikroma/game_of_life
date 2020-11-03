@@ -43,7 +43,7 @@ void* input_thread_function(void* parameters)
     self->last_mouse_position = (coordinates){0, 0};
     while (!self->last_mouse_position.x && !self->last_mouse_position.y)
     {
-        SDL_GetMouseState(&self->last_mouse_position.x, &self->last_mouse_position.y);
+        SDL_GetMouseState((int*)&self->last_mouse_position.x, (int*)&self->last_mouse_position.y);
         sleep_ms(1);
     }
     while (!(const bool)self->stop_flag)
@@ -53,7 +53,7 @@ void* input_thread_function(void* parameters)
         if (value)
         {
             coordinates new_mouse_position;
-            SDL_GetMouseState(&new_mouse_position.x, &new_mouse_position.y);
+            SDL_GetMouseState((int*)&new_mouse_position.x, (int*)&new_mouse_position.y);
 
             io_threader_lock_drawer(self);
             if (self->draw_line)
@@ -72,6 +72,7 @@ void* input_thread_function(void* parameters)
         else
         {
             self->draw_line = false;
+            sleep_ms(0.01);
         }
         sleep_ms(0.001);
     }
@@ -91,7 +92,7 @@ void* output_thread_function(void* parameters)
         io_threader_unlock_drawer(self);
 
         SDL_UpdateWindowSurface(self->drawer.window);
-        sleep_ms(2);
+        sleep_ms(3);
     }
     pthread_join(self->input_thread, NULL);
     life_drawer_delete(&self->drawer);

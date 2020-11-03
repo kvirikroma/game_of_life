@@ -113,7 +113,6 @@ void life_drawer_draw_line(life_drawer* self, coordinates begin, coordinates end
 {
     int line_length_x = end.x - begin.x;
     int line_length_y = end.y - begin.y;
-    double ratio = 0;
     int x = 0;
     int y = 0;
     if (line_length_y && (abs(line_length_y) > abs(line_length_x)))

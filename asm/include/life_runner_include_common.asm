@@ -12,5 +12,7 @@ struc life_runner
     .disable_cyclic_adressing   resb 1
 endstruc
 
+LIFE_RUNNER_SIZE equ 14
+
 
 %endif

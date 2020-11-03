@@ -20,4 +20,11 @@ void print_array2d(array2d* array);
 // Sleep given amount of milliseconds
 void sleep_ms(double milliseconds);
 
+// Save life_runner_snapshot to file
+void save_runner_snapshot_to_file(life_runner_snapshot* snapshot, const char* filename);
+
+// Read life_runner_snapshot to file
+// Return true on success
+bool load_runner_snapshot_from_file(life_runner_snapshot* snapshot, const char* filename, bool snapshot_was_initialized);
+
 #endif

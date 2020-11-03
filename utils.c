@@ -55,3 +55,39 @@ void sleep_ms(double milliseconds)
 {
     usleep(1000 * milliseconds);
 }
+
+
+void save_runner_snapshot_to_file(life_runner_snapshot* snapshot, const char* filename)
+{
+    FILE* file = fopen(filename, "wb");
+    fwrite(&snapshot->size, sizeof(uint32_t), 1, file);
+    fwrite(snapshot->data, sizeof(uint8_t), snapshot->size, file);
+    fclose(file);
+}
+
+bool load_runner_snapshot_from_file(life_runner_snapshot* snapshot, const char* filename, bool snapshot_was_initialized)
+{
+    bool result = true;
+    snapshot->size = 0;
+    if (snapshot_was_initialized)
+    {
+        free(snapshot->data);
+    }
+    FILE* file = fopen(filename, "rb");
+    fread(&snapshot->size, 1, sizeof(uint32_t), file);
+    fflush(file);
+    if (snapshot->size < 15)
+    {
+        result = false;
+    }
+    else
+    {
+        snapshot->data = malloc(snapshot->size);
+    }
+    if (fread(snapshot->data, 1, snapshot->size, file) != snapshot->size)
+    {
+        result = false;
+    }
+    fclose(file);
+    return result;
+}

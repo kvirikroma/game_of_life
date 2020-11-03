@@ -8,10 +8,12 @@
 #include "include/key_handlers.h"
 #include "include/io_threader.h"
 
+#define SAVEGAME_FILENAME "saved_game.life"
+
 
 int main()
 {
-    uint32_t game_slowdown = 25;
+    uint32_t game_slowdown = 25;  // min is 25
     
     bool run = true;
     bool pause = true;
@@ -36,18 +38,47 @@ int main()
             }
             if (event.type == SDL_KEYDOWN)
             {
-                if (event.key.keysym.sym == SDLK_c)
+                switch (event.key.keysym.sym)
                 {
-                    move = false;
-                    moved_once = true;
-                    lmb_pressed = false;
-                    rmb_pressed = false;
-                    bit_array2d* new_field = bit_array2d_init(threader.drawer.game.field->x_size, threader.drawer.game.field->y_size);
-                    io_threader_lock_drawer(&threader);
-                    bit_array2d_delete(threader.drawer.game.field);
-                    threader.drawer.game.field = new_field;
-                    io_threader_unlock_drawer(&threader);
-                    break;
+                    case SDLK_c:
+                    {
+                        move = false;
+                        moved_once = true;
+                        lmb_pressed = false;
+                        rmb_pressed = false;
+                        bit_array2d* new_field = bit_array2d_init(threader.drawer.game.field->x_size, threader.drawer.game.field->y_size);
+                        io_threader_lock_drawer(&threader);
+                        bit_array2d_delete(threader.drawer.game.field);
+                        threader.drawer.game.field = new_field;
+                        io_threader_unlock_drawer(&threader);
+                        break;
+                    }
+                    case SDLK_s:
+                    {
+                        io_threader_lock_drawer(&threader);
+                        life_runner_snapshot snapshot = life_runner_to_snapshot(&threader.drawer.game);
+                        io_threader_unlock_drawer(&threader);
+
+                        save_runner_snapshot_to_file(&snapshot, SAVEGAME_FILENAME);
+                        life_runner_snapshot_delete(&snapshot);
+                        break;
+                    }
+                    case SDLK_l:
+                    {
+                        life_runner_snapshot file_snapshot;
+                        if (load_runner_snapshot_from_file(&file_snapshot, SAVEGAME_FILENAME, false))
+                        {
+                            io_threader_lock_drawer(&threader);
+                            life_runner_from_snapshot(&threader.drawer.game, file_snapshot, true);
+                            io_threader_unlock_drawer(&threader);
+                            life_runner_snapshot_delete(&file_snapshot);
+                        }
+                        break;
+                    }
+                    default:
+                    {
+                        break;
+                    }
                 }
                 keydown_handler(event.key.keysym.sym, &pause, &movement, &move);
             }

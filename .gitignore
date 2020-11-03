@@ -5,3 +5,4 @@ package/usr/sbin
 .vscode
 asm/compiler_symlinks
 .kdbg*
+saved_game*
