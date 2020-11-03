@@ -71,7 +71,7 @@ bool load_runner_snapshot_from_file(life_runner_snapshot* snapshot, const char* 
     snapshot->size = 0;
     if (snapshot_was_initialized)
     {
-        free(snapshot->data);
+        life_runner_snapshot_delete(snapshot);
     }
     FILE* file = fopen(filename, "rb");
     fread(&snapshot->size, 1, sizeof(uint32_t), file);
@@ -83,10 +83,11 @@ bool load_runner_snapshot_from_file(life_runner_snapshot* snapshot, const char* 
     else
     {
         snapshot->data = malloc(snapshot->size);
-    }
-    if (fread(snapshot->data, 1, snapshot->size, file) != snapshot->size)
-    {
-        result = false;
+        if (fread(snapshot->data, 1, snapshot->size, file) != snapshot->size)
+        {
+            result = false;
+            life_runner_snapshot_delete(snapshot);
+        }
     }
     fclose(file);
     return result;

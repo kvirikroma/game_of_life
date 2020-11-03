@@ -25,6 +25,7 @@ void save_runner_snapshot_to_file(life_runner_snapshot* snapshot, const char* fi
 
 // Read life_runner_snapshot to file
 // Return true on success
+// snapshot is initialized on success, else - not
 bool load_runner_snapshot_from_file(life_runner_snapshot* snapshot, const char* filename, bool snapshot_was_initialized);
 
 #endif
