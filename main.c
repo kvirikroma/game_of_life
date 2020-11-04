@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/time.h>
 
 #include "include/utils.h"
 #include "include/main.h"
@@ -57,7 +58,7 @@ void apply_movement(bool lock_drawer)
 
 int main()
 {
-    step_delay = 20;
+    step_delay = 36;
     run = true;
     pause = true;
     lmb_pressed = false;
@@ -65,6 +66,7 @@ int main()
     speed = 1;
     moved_once = false;
     move = false;
+    struct timeval  start_time, end_time;
 
     key_handler_init(&keyhandler, &pause, &movement, &move, &speed);
     io_threader_init(&threader, 1600, 900, 512, 288, &lmb_pressed, &rmb_pressed, &move, &speed);
@@ -72,6 +74,7 @@ int main()
     SDL_Event event;
     while (run)
     {
+        gettimeofday(&start_time, NULL);
         while (SDL_PollEvent(&event))
         {
             if (event.type == SDL_QUIT)
@@ -112,6 +115,7 @@ int main()
                         {
                             io_threader_lock_drawer(&threader);
                             life_runner_from_snapshot(&threader.drawer.game, file_snapshot, true);
+                            life_drawer_field_fit(&threader.drawer);
                             io_threader_unlock_drawer(&threader);
                             life_runner_snapshot_delete(&file_snapshot);
                         }
@@ -163,13 +167,17 @@ int main()
             if (!pause)
             {
                 io_threader_lock_drawer(&threader);
-                for (uint8_t step = 0; step < round(pow(1.42, speed)); step++)
+                for (uint8_t step = 0; step < round(pow(1.435, speed)); step++)
                 {
                     life_runner_make_step(&threader.drawer.game);
-                    if ((step % 6) == 1)
+                    if ((step % 7) == 1)
                     {
                         life_drawer_redraw(&threader.drawer);
                         apply_movement(false);
+                    }
+                    if (!run)
+                    {
+                        break;
                     }
                 }
                 io_threader_unlock_drawer(&threader);
@@ -178,14 +186,17 @@ int main()
 
         if (!move || moved_once)
         {
-            int32_t delay = pause ? step_delay : (step_delay - ((speed-1) * 10));
-            if (delay > 2)
+            gettimeofday(&end_time, NULL);
+            int64_t msec_total =
+                ((double)(end_time.tv_usec - start_time.tv_usec) / 1000) +
+                ((double)(end_time.tv_sec - start_time.tv_sec) * 1000);
+            if (((int64_t)step_delay - msec_total) > 3)
             {
-                sleep_ms(delay);
+                sleep_ms((int64_t)step_delay - msec_total);
             }
             else
             {
-                sleep_ms(2);
+                sleep_ms(3);
             }
             
         }

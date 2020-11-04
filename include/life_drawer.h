@@ -44,4 +44,7 @@ void life_drawer_change_cell(life_drawer* self, uint32_t pixel_x, uint32_t pixel
 // Draw line of cells or empty spaces on range of pixels
 void life_drawer_draw_line(life_drawer* self, coordinates begin, coordinates end, bool value);
 
+// Recalculate size ratio
+void life_drawer_field_fit(life_drawer* self);
+
 #endif

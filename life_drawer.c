@@ -1,7 +1,5 @@
 #include <math.h>
 
-#include <SDL2/SDL_opengl.h>
-
 #include "include/life_drawer.h"
 
 
@@ -14,7 +12,8 @@ void life_drawer_init(life_drawer* self, uint32_t pixels_x, uint32_t pixels_y, u
         exit(1);
     }
 
-    self->window = SDL_CreateWindow("Game Of Life", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, pixels_x, pixels_y, SDL_WINDOW_OPENGL);
+    SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "0");
+    self->window = SDL_CreateWindow("Game Of Life", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, pixels_x, pixels_y, SDL_WINDOW_SHOWN);
     
     if (!self->window)
     {
@@ -24,8 +23,15 @@ void life_drawer_init(life_drawer* self, uint32_t pixels_x, uint32_t pixels_y, u
     SDL_Surface* screen_surface = SDL_GetWindowSurface(self->window);
     SDL_FillRect(screen_surface, NULL, SDL_MapRGB(screen_surface->format, 0, 0, 0));
     SDL_UpdateWindowSurface(self->window);
-    self->size_ratio_x = (double)cells_x / (double)pixels_x;
-    self->size_ratio_y = (double)cells_y / (double)pixels_y;
+    life_drawer_field_fit(self);
+}
+
+
+void life_drawer_field_fit(life_drawer* self)
+{
+    SDL_Surface* screen_surface = SDL_GetWindowSurface(self->window);
+    self->size_ratio_x = (double)self->game.field->x_size / (double)screen_surface->w;
+    self->size_ratio_y = (double)self->game.field->y_size / (double)screen_surface->h;
 }
 
 
