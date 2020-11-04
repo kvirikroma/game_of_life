@@ -3,7 +3,7 @@ KEYBOARD:
     space - pause
     s - save game to "saved_game.life"
     l - load game from "saved_game.life"
-    1-9 buttons - change game speed (warning: fps will drop)
+    1-9 buttons - change game speed (warning: fps drops and input lags in 3-9 speed)
     MOVEMENT:
         up arrow - move up across the field
         down arrow - move down across the field

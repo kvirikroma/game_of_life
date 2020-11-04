@@ -113,30 +113,6 @@ int main()
             }
         }
 
-        if (move)
-        {
-            if ((!moved_once && keyhandler.pressed_keys.alt) || !keyhandler.pressed_keys.alt)
-            {
-                uint8_t distance = 1;
-                if (keyhandler.pressed_keys.shift)
-                {
-                    distance = 4;
-                }
-                if (!lmb_pressed && !rmb_pressed && !keyhandler.pressed_keys.alt)
-                {
-                    distance *= 2;
-                }
-                io_threader_lock_drawer(&threader);
-                life_runner_move_game(&threader.drawer.game, movement, distance);
-                io_threader_unlock_drawer(&threader);
-            }
-            moved_once = true;
-        }
-        else
-        {
-            moved_once = false;
-        }
-
         if (!lmb_pressed && !rmb_pressed)
         {
             if (!pause)
@@ -148,6 +124,28 @@ int main()
                     if (!(step % 4))
                     {
                         life_drawer_redraw(&threader.drawer);
+
+                        if (move)
+                        {
+                            if ((!moved_once && keyhandler.pressed_keys.alt) || !keyhandler.pressed_keys.alt)
+                            {
+                                uint8_t distance = 1;
+                                if (keyhandler.pressed_keys.shift)
+                                {
+                                    distance = 4;
+                                }
+                                if (!lmb_pressed && !rmb_pressed && !keyhandler.pressed_keys.alt)
+                                {
+                                    distance *= 2;
+                                }
+                                life_runner_move_game(&threader.drawer.game, movement, distance);
+                            }
+                            moved_once = true;
+                        }
+                        else
+                        {
+                            moved_once = false;
+                        }
                     }
                 }
                 io_threader_unlock_drawer(&threader);
