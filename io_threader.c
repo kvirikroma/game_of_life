@@ -42,7 +42,7 @@ void* input_thread_function(void* parameters)
 {
     io_threader* self = (io_threader*)parameters;
     self->last_mouse_position = (coordinates){0, 0};
-    while (!self->last_mouse_position.x && !self->last_mouse_position.y)
+    while (!self->last_mouse_position.x && !self->last_mouse_position.y && !self->stop_flag)
     {
         SDL_GetMouseState((int*)&self->last_mouse_position.x, (int*)&self->last_mouse_position.y);
         sleep_ms(1);
@@ -88,9 +88,11 @@ void* output_thread_function(void* parameters)
     pthread_create((pthread_t*)&self->input_thread, NULL, input_thread_function, (void*)self);
     while (!(const bool)self->stop_flag)
     {
-        io_threader_lock_drawer(self);
-        life_drawer_redraw(&self->drawer);
-        io_threader_unlock_drawer(self);
+        if (!pthread_mutex_trylock(&self->drawer_lock))
+        {
+            life_drawer_redraw(&self->drawer);
+            io_threader_unlock_drawer(self);
+        }
 
         SDL_UpdateWindowSurface(self->drawer.window);
         sleep_ms(2 + (*self->speed * 2));

@@ -142,9 +142,13 @@ int main()
             if (!pause)
             {
                 io_threader_lock_drawer(&threader);
-                for (uint8_t step = 0; step < speed; step++)
+                for (uint8_t step = 0; step < round(pow(1.4, speed)); step++)
                 {
                     life_runner_make_step(&threader.drawer.game);
+                    if (!(step % 4))
+                    {
+                        life_drawer_redraw(&threader.drawer);
+                    }
                 }
                 io_threader_unlock_drawer(&threader);
             }
@@ -152,7 +156,16 @@ int main()
 
         if (!move || moved_once)
         {
-            sleep_ms(step_delay - (speed * 2));
+            int32_t delay = step_delay - (speed * 20);
+            if (delay > 10)
+            {
+                sleep_ms(delay);
+            }
+            else
+            {
+                sleep_ms(10);
+            }
+            
         }
     }
 

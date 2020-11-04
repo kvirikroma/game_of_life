@@ -1,13 +1,16 @@
 KEYBOARD:
     c - clear the game field
-    up arrow - move up across the field
-    down arrow - move down across the field
-    up arrow - move right across the field
-    left arrow - move left across the field
     space - pause
     s - save game to "saved_game.life"
     l - load game from "saved_game.life"
-    1-9 buttons - change game speed x1 - x9 (warning: fps will drop)
+    1-9 buttons - change game speed (warning: fps will drop)
+    MOVEMENT:
+        up arrow - move up across the field
+        down arrow - move down across the field
+        up arrow - move right across the field
+        left arrow - move left across the field
+        shift (while prressed) - boosts movement (4 cells at one step)
+        alt (while pressed) - move step-by-step
 MOUSE:
     lmb - add a cell
     rmb - remove a cell
