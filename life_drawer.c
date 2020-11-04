@@ -1,5 +1,7 @@
 #include <math.h>
 
+#include <SDL2/SDL_opengl.h>
+
 #include "include/life_drawer.h"
 
 
@@ -12,7 +14,7 @@ void life_drawer_init(life_drawer* self, uint32_t pixels_x, uint32_t pixels_y, u
         exit(1);
     }
 
-    self->window = SDL_CreateWindow("Game Of Life", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, pixels_x, pixels_y, SDL_WINDOW_SHOWN);
+    self->window = SDL_CreateWindow("Game Of Life", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, pixels_x, pixels_y, SDL_WINDOW_OPENGL);
     
     if (!self->window)
     {

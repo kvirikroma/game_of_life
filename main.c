@@ -117,6 +117,11 @@ int main()
                         }
                         break;
                     }
+                    case SDLK_ESCAPE:
+                    {
+                        run = false;
+                    }
+                    
                     default:
                     {
                         break;
