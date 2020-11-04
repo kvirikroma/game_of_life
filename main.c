@@ -1,33 +1,72 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "include/bit_array2d.h"
-#include "include/life_runner.h"
 #include "include/utils.h"
-#include "include/life_drawer.h"
-#include "include/key_handler.h"
-#include "include/io_threader.h"
+#include "include/main.h"
 
 #define SAVEGAME_FILENAME "saved_game.life"
 
 
+uint32_t step_delay;  // minimum is 20
+bool run;
+bool pause;
+bool lmb_pressed;
+bool rmb_pressed;
+uint8_t speed;
+
+bool moved_once;
+direction movement;
+bool move;
+key_handler keyhandler;
+io_threader threader;
+
+
+void apply_movement(bool lock_drawer)
+{
+    if (move)
+    {
+        if ((!moved_once && keyhandler.pressed_keys.alt) || !keyhandler.pressed_keys.alt)
+        {
+            uint8_t distance = 1;
+            if (keyhandler.pressed_keys.shift)
+            {
+                distance = 4;
+            }
+            if (!lmb_pressed && !rmb_pressed && !keyhandler.pressed_keys.alt)
+            {
+                distance *= 2;
+            }
+            if (lock_drawer)
+            {
+                io_threader_lock_drawer(&threader);
+            }
+            life_runner_move_game(&threader.drawer.game, movement, distance);
+            if (lock_drawer)
+            {
+                io_threader_unlock_drawer(&threader);
+            }
+        }
+        moved_once = true;
+    }
+    else
+    {
+        moved_once = false;
+    }
+}
+
+
 int main()
 {
-    uint32_t step_delay = 20;  // minimum is 20
-    
-    bool run = true;
-    bool pause = true;
-    bool lmb_pressed = false;
-    bool rmb_pressed = false;
-    uint8_t speed = 1;
+    step_delay = 20;
+    run = true;
+    pause = true;
+    lmb_pressed = false;
+    rmb_pressed = false;
+    speed = 1;
+    moved_once = false;
+    move = false;
 
-    bool moved_once = false;
-    direction movement;
-    bool move = false;
-    key_handler keyhandler;
     key_handler_init(&keyhandler, &pause, &movement, &move, &speed);
-
-    io_threader threader;
     io_threader_init(&threader, 1600, 900, 512, 288, &lmb_pressed, &rmb_pressed, &move, &speed);
 
     SDL_Event event;
@@ -113,39 +152,19 @@ int main()
             }
         }
 
+        apply_movement(true);
         if (!lmb_pressed && !rmb_pressed)
         {
             if (!pause)
             {
                 io_threader_lock_drawer(&threader);
-                for (uint8_t step = 0; step < round(pow(1.4, speed)); step++)
+                for (uint8_t step = 0; step < round(pow(1.42, speed)); step++)
                 {
                     life_runner_make_step(&threader.drawer.game);
-                    if (!(step % 4))
+                    if ((step % 6) == 1)
                     {
                         life_drawer_redraw(&threader.drawer);
-
-                        if (move)
-                        {
-                            if ((!moved_once && keyhandler.pressed_keys.alt) || !keyhandler.pressed_keys.alt)
-                            {
-                                uint8_t distance = 1;
-                                if (keyhandler.pressed_keys.shift)
-                                {
-                                    distance = 4;
-                                }
-                                if (!lmb_pressed && !rmb_pressed && !keyhandler.pressed_keys.alt)
-                                {
-                                    distance *= 2;
-                                }
-                                life_runner_move_game(&threader.drawer.game, movement, distance);
-                            }
-                            moved_once = true;
-                        }
-                        else
-                        {
-                            moved_once = false;
-                        }
+                        apply_movement(false);
                     }
                 }
                 io_threader_unlock_drawer(&threader);
@@ -154,14 +173,14 @@ int main()
 
         if (!move || moved_once)
         {
-            int32_t delay = step_delay - (speed * 20);
-            if (delay > 10)
+            int32_t delay = pause ? step_delay : (step_delay - ((speed-1) * 10));
+            if (delay > 2)
             {
                 sleep_ms(delay);
             }
             else
             {
-                sleep_ms(10);
+                sleep_ms(2);
             }
             
         }

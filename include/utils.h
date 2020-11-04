@@ -1,8 +1,8 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include "bit_array2d.h"
 #include "array2d.h"
+#include "life_runner.h"
 
 
 // Print error message and exit with code 1
