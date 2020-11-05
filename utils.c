@@ -91,19 +91,25 @@ bool load_runner_snapshot_from_file(life_runner_snapshot* snapshot, const char* 
     {
         return false;
     }
-    fread(&snapshot->size, 1, sizeof(uint32_t), file);
-    fflush(file);
-    if (snapshot->size < 15)
+    if (fread(&snapshot->size, 1, sizeof(uint32_t), file) != sizeof(uint32_t))
     {
         result = false;
     }
     else
     {
-        snapshot->data = malloc(snapshot->size);
-        if (fread(snapshot->data, 1, snapshot->size, file) != snapshot->size)
+        fflush(file);
+        if (snapshot->size < 15)
         {
             result = false;
-            life_runner_snapshot_delete(snapshot);
+        }
+        else
+        {
+            snapshot->data = malloc(snapshot->size);
+            if (fread(snapshot->data, 1, snapshot->size, file) != snapshot->size)
+            {
+                result = false;
+                life_runner_snapshot_delete(snapshot);
+            }
         }
     }
     fclose(file);

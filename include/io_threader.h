@@ -13,7 +13,7 @@ typedef struct
     bool stop_flag;
     pthread_t input_thread;
     pthread_t output_thread;
-    event_listener eventlistener;
+    event_listener input;
     pthread_mutex_t drawer_lock;
 }
 io_threader;

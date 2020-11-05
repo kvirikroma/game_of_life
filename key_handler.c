@@ -74,6 +74,8 @@ void key_handler_down(key_handler* self, SDL_Keycode key)
     {
         case SDLK_SPACE:
             *self->pause = !*self->pause;
+            if (*self->speed == 0)
+                *self->speed = 1;
             break;
         case SDLK_UP:
             self->pressed_keys.up = true;
@@ -134,9 +136,7 @@ void key_handler_down(key_handler* self, SDL_Keycode key)
             break;
         
         default:
-        {
             break;
-        }
     }
     movement_by_keys(self);
 }
@@ -149,38 +149,45 @@ void key_handler_up(key_handler* self, SDL_Keycode key)
         case SDLK_UP:
             self->pressed_keys.up = false;
             break;
+
         case SDLK_DOWN:
             self->pressed_keys.down = false;
             break;
+
         case SDLK_LEFT:
             self->pressed_keys.left = false;
             break;
+
         case SDLK_RIGHT:
             self->pressed_keys.right = false;
             break;
+
         case SDLK_RSHIFT:
             self->pressed_keys.shift = false;
             break;
+
         case SDLK_LSHIFT:
             self->pressed_keys.shift = false;
             break;
+
         case SDLK_LCTRL:
             self->pressed_keys.control = false;
             break;
+
         case SDLK_RCTRL:
             self->pressed_keys.control = false;
             break;
+
         case SDLK_LALT:
             self->pressed_keys.alt = false;
             break;
+
         case SDLK_RALT:
             self->pressed_keys.alt = false;
             break;
         
         default:
-        {
             break;
-        }
     }
     movement_by_keys(self);
 }

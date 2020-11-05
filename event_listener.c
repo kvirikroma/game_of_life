@@ -20,7 +20,7 @@ void event_listener_init(event_listener* self)
 void event_listener_listen(event_listener* self, void* threader)
 {
     io_threader* iothreader = (io_threader*)threader;
-    while (SDL_PollEvent(&self->event))
+    if (SDL_PollEvent(&self->event))
     {
         if (self->event.type == SDL_QUIT)
         {
@@ -28,10 +28,12 @@ void event_listener_listen(event_listener* self, void* threader)
         }
         if (self->event.type == SDL_KEYDOWN)
         {
+            key_handler_down(&self->keyhandler, self->event.key.keysym.sym);
             switch (self->event.key.keysym.sym)
             {
                 case SDLK_c:
                 {
+                    self->speed = 1;
                     self->move = false;
                     self->moved_once = true;
                     self->lmb_pressed = false;
@@ -58,6 +60,7 @@ void event_listener_listen(event_listener* self, void* threader)
                     life_runner_snapshot file_snapshot;
                     if (load_runner_snapshot_from_file(&file_snapshot, SAVEGAME_FILENAME, false))
                     {
+                        self->speed = 1;
                         io_threader_lock_drawer(threader);
                         life_runner_from_snapshot(&iothreader->drawer.game, file_snapshot, true);
                         life_drawer_field_fit(&iothreader->drawer);
@@ -66,17 +69,21 @@ void event_listener_listen(event_listener* self, void* threader)
                     }
                     break;
                 }
+                case SDLK_0:
+                {
+                    self->speed = 0;
+                    self->pause = true;
+                    io_threader_lock_drawer(threader);
+                    life_runner_make_step(&iothreader->drawer.game);
+                    io_threader_unlock_drawer(threader);
+                    
+                    break;
+                }
                 case SDLK_ESCAPE:
                 {
                     self->run = false;
                 }
-                
-                default:
-                {
-                    break;
-                }
             }
-            key_handler_down(&self->keyhandler, self->event.key.keysym.sym);
         }
         if (self->event.type == SDL_KEYUP)
         {
