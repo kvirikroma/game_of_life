@@ -2,6 +2,8 @@
 
 #include "include/life_drawer.h"
 
+#define ZOOM_BORDERS_SIZE 8
+
 
 void life_drawer_init(life_drawer* self, uint32_t pixels_x, uint32_t pixels_y, uint32_t cells_x, uint32_t cells_y)
 {
@@ -32,6 +34,8 @@ void life_drawer_field_fit(life_drawer* self)
     SDL_Surface* screen_surface = SDL_GetWindowSurface(self->window);
     self->size_ratio_x = (double)self->game.field->x_size / (double)screen_surface->w;
     self->size_ratio_y = (double)self->game.field->y_size / (double)screen_surface->h;
+    self->zoom_size_ratio_x = self->size_ratio_x;
+    self->zoom_size_ratio_y = self->size_ratio_y;
 }
 
 
@@ -51,8 +55,8 @@ void life_drawer_redraw(const life_drawer* self)
         for (uint32_t x = 0; x < screen_surface->w; x++)
         {
             coordinates bit_to_use;
-            bit_to_use.x = (uint32_t)round(self->size_ratio_x * x);
-            bit_to_use.y = (uint32_t)round(self->size_ratio_y * y);
+            bit_to_use.x = (uint32_t)round(self->zoom_size_ratio_x * x);
+            bit_to_use.y = (uint32_t)round(self->zoom_size_ratio_y * y);
             uint32_t color = 0;
             if (bit_array2d_get_bit(self->game.field, bit_to_use.x, bit_to_use.y, 0))
             {
@@ -61,6 +65,17 @@ void life_drawer_redraw(const life_drawer* self)
             ((uint32_t*)screen_surface->pixels)[x + (screen_surface->w * y)] = color;
         }
     }
+    if (life_drawer_is_zoomed(self))
+    {
+        SDL_Rect borders[4];
+        borders[0].x = borders[1].x = borders[0].y = borders[1].y = borders[2].y = borders[3].x = 0;
+        borders[2].x = screen_surface->w - ZOOM_BORDERS_SIZE;
+        borders[3].y = screen_surface->h - ZOOM_BORDERS_SIZE;
+        borders[0].w = borders[1].h = borders[2].w = borders[3].h = ZOOM_BORDERS_SIZE;
+        borders[0].h = borders[2].h = screen_surface->h;
+        borders[1].w = borders[3].w = screen_surface->w;
+        SDL_FillRects(screen_surface, borders, 4, 0x22888888);
+    }
 }
 
 
@@ -68,8 +83,8 @@ void life_drawer_set_visual_cell(life_drawer* self, uint32_t cell_x, uint32_t ce
 {
     SDL_Surface* screen_surface = SDL_GetWindowSurface(self->window);
     coordinates cell_size;
-    cell_size.x = round((double)1 / self->size_ratio_x);
-    cell_size.y = round((double)1 / self->size_ratio_y);
+    cell_size.x = round((double)1 / self->zoom_size_ratio_x);
+    cell_size.y = round((double)1 / self->zoom_size_ratio_y);
     for (uint32_t y = 0; y < cell_size.y; y++)
     {
         for (uint32_t x = 0; x < cell_size.x; x++)
@@ -87,8 +102,8 @@ void life_drawer_set_visual_cell(life_drawer* self, uint32_t cell_x, uint32_t ce
 
 void life_drawer_change_cell(life_drawer* self, uint32_t pixel_x, uint32_t pixel_y, bool value)
 {
-    pixel_x = (uint32_t)round(self->size_ratio_x * pixel_x);
-    pixel_y = (uint32_t)round(self->size_ratio_y * pixel_y);
+    pixel_x = (uint32_t)round(self->zoom_size_ratio_x * pixel_x);
+    pixel_y = (uint32_t)round(self->zoom_size_ratio_y * pixel_y);
 
     if ((pixel_x >= 0) && (pixel_y >= 0) && (pixel_x < self->game.field->x_size) && (pixel_y < self->game.field->y_size))
     {
@@ -168,6 +183,20 @@ void life_drawer_draw_line(life_drawer* self, coordinates begin, coordinates end
         life_drawer_change_cell(self, begin.x, begin.y, value);
     }
 }
+
+bool life_drawer_is_zoomed(const life_drawer* self)
+{
+    return (
+        (self->size_ratio_x != self->zoom_size_ratio_x) || 
+        (self->size_ratio_y != self->zoom_size_ratio_y)
+    );
+}
+
+void life_drawer_change_zoom(life_drawer* self, coordinates size);
+
+void life_drawer_zoom_out(life_drawer* self, coordinates mouse);
+
+void life_drawer_zoom_in(life_drawer* self, coordinates mouse);
 
 void life_drawer_change_window_size(life_drawer* self, uint32_t pixels_x, uint32_t pixels_y);  // TODO
 

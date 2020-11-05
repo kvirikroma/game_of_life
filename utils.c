@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/time.h>
 
 #include "include/bit_array2d.h"
 #include "include/array2d.h"
@@ -60,6 +61,14 @@ void sleep_ms(double milliseconds)
 }
 
 
+int64_t get_current_millisecond(void)
+{
+    struct timeval time;
+    gettimeofday(&time, NULL);
+    return ((time.tv_usec / 1000) + (time.tv_sec * 1000));
+}
+
+
 void save_runner_snapshot_to_file(life_runner_snapshot* snapshot, const char* filename)
 {
     FILE* file = fopen(filename, "wb");
@@ -67,6 +76,7 @@ void save_runner_snapshot_to_file(life_runner_snapshot* snapshot, const char* fi
     fwrite(snapshot->data, sizeof(uint8_t), snapshot->size, file);
     fclose(file);
 }
+
 
 bool load_runner_snapshot_from_file(life_runner_snapshot* snapshot, const char* filename, bool snapshot_was_initialized)
 {
@@ -77,6 +87,10 @@ bool load_runner_snapshot_from_file(life_runner_snapshot* snapshot, const char* 
         life_runner_snapshot_delete(snapshot);
     }
     FILE* file = fopen(filename, "rb");
+    if (!file)
+    {
+        return false;
+    }
     fread(&snapshot->size, 1, sizeof(uint32_t), file);
     fflush(file);
     if (snapshot->size < 15)

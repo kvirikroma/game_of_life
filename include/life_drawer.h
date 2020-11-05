@@ -19,6 +19,8 @@ typedef struct
     SDL_Window* window;
     double size_ratio_x;
     double size_ratio_y;
+    double zoom_size_ratio_x;
+    double zoom_size_ratio_y;
 }
 life_drawer;
 
@@ -46,5 +48,20 @@ void life_drawer_draw_line(life_drawer* self, coordinates begin, coordinates end
 
 // Recalculate size ratio
 void life_drawer_field_fit(life_drawer* self);
+
+// Set zoom
+void life_drawer_change_zoom(life_drawer* self, coordinates size);
+
+// Zoom in, follow mouse
+void life_drawer_zoom_in(life_drawer* self, coordinates mouse);
+
+// Zoom out, follow mouse
+void life_drawer_zoom_out(life_drawer* self, coordinates mouse);
+
+// Check if some zoom using at the moment
+bool life_drawer_is_zoomed(const life_drawer* self);
+
+// Get size of window
+coordinates life_drawer_get_window_size(const life_drawer* self);
 
 #endif
