@@ -68,7 +68,7 @@ void key_handler_init(key_handler* self, bool* pause, direction* movement, bool*
 }
 
 
-void key_handler_down(key_handler* self, SDL_Keycode key)
+bool key_handler_down(key_handler* self, SDL_Keycode key)
 {
     switch (key)
     {
@@ -136,13 +136,14 @@ void key_handler_down(key_handler* self, SDL_Keycode key)
             break;
         
         default:
-            break;
+            return false;
     }
     movement_by_keys(self);
+    return true;
 }
 
 
-void key_handler_up(key_handler* self, SDL_Keycode key)
+bool key_handler_up(key_handler* self, SDL_Keycode key)
 {
     switch (key)
     {
@@ -187,7 +188,8 @@ void key_handler_up(key_handler* self, SDL_Keycode key)
             break;
         
         default:
-            break;
+            return false;
     }
     movement_by_keys(self);
+    return true;
 }

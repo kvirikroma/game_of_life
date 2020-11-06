@@ -6,6 +6,8 @@ void io_threader_init(io_threader* self, uint32_t window_x, uint32_t window_y, u
 {
     self->stop_flag = false;
     self->input.run = true;
+    self->threads_started = false;
+    self->redrawed = false;
     pthread_mutex_init((pthread_mutex_t*)&self->drawer_lock, NULL);
     output_thread_params* output_params = malloc(sizeof(output_thread_params));
     output_params->window_size = (coordinates){window_x, window_y};
@@ -43,19 +45,23 @@ void* input_thread_function(void* parameters)
     io_threader* self = params->threader;
     last_mouse_position = (coordinates){0, 0};
     event_listener_init(&self->input);
-    while (!last_mouse_position.x && !last_mouse_position.y && !self->stop_flag)
-    {
-        event_listener_listen(&self->input, self);
-        SDL_GetMouseState((int*)&last_mouse_position.x, (int*)&last_mouse_position.y);
-        sleep_ms(1);
-    }
+    self->threads_started = true;
+    bool mouse_inited = false;
     bool draw_line = false;
     int64_t last_move_time = 0;
     int64_t new_move_time;
     while (!self->stop_flag)
     {
         event_listener_listen(&self->input, self);
-        if (self->input.lmb_pressed ^ self->input.rmb_pressed)
+        if (!mouse_inited)
+        {
+            SDL_GetMouseState((int*)&last_mouse_position.x, (int*)&last_mouse_position.y);
+            if (last_mouse_position.x || last_mouse_position.y)
+            {
+                mouse_inited = true;
+            }
+        }
+        if (mouse_inited && (self->input.lmb_pressed ^ self->input.rmb_pressed))
         {
             coordinates new_mouse_position;
             SDL_GetMouseState((int*)&new_mouse_position.x, (int*)&new_mouse_position.y);
@@ -64,10 +70,12 @@ void* input_thread_function(void* parameters)
             if (draw_line)
             {
                 life_drawer_draw_line(&self->drawer, last_mouse_position, new_mouse_position, self->input.lmb_pressed);
+                self->redrawed = false;
             }
             else
             {
                 life_drawer_change_cell(&self->drawer, new_mouse_position.x, new_mouse_position.y, self->input.lmb_pressed);
+                self->redrawed = false;
                 draw_line = true;
             }
             
@@ -75,6 +83,7 @@ void* input_thread_function(void* parameters)
             if ((new_move_time - last_move_time) > 20)
             {
                 event_listener_apply_movement(&self->input, self, false);
+                self->redrawed = false;
                 last_move_time = new_move_time;
             }
 
@@ -89,6 +98,7 @@ void* input_thread_function(void* parameters)
             {
                 io_threader_lock_drawer(self);
                 event_listener_apply_movement(&self->input, self, false);
+                self->redrawed = false;
                 io_threader_unlock_drawer(self);
                 last_move_time = new_move_time;
             }
@@ -110,14 +120,21 @@ void* output_thread_function(void* parameters)
     input_params->threader = self;
     life_drawer_init(&self->drawer, params->window_size.x, params->window_size.y, params->game_field_size.x, params->game_field_size.y);
     pthread_create((pthread_t*)&self->input_thread, NULL, input_thread_function, (void*)input_params);
-    bit_array2d_set_bit(self->drawer.game.field, 1, 1, 1);
 
     while (!self->stop_flag)
     {
-        if (!pthread_mutex_trylock(&self->drawer_lock))
+        if (!self->redrawed)
         {
-            life_drawer_redraw(&self->drawer);
-            io_threader_unlock_drawer(self);
+            if (!pthread_mutex_trylock(&self->drawer_lock))
+            {
+                life_drawer_redraw(&self->drawer);
+                self->redrawed = true;
+                io_threader_unlock_drawer(self);
+            }
+            else
+            {
+                sleep_ms(1);
+            }
         }
         else
         {

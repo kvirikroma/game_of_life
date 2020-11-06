@@ -31,9 +31,11 @@ key_handler;
 void key_handler_init(key_handler* self, bool* pause, direction* movement, bool* move, uint8_t* speed);
 
 // Handler for keydown event
-void key_handler_down(key_handler* self, SDL_Keycode key);
+// Retyrns true if applies some actions
+bool key_handler_down(key_handler* self, SDL_Keycode key);
 
 // Handler for keyup event
-void key_handler_up(key_handler* self, SDL_Keycode key);
+// Retyrns true if applies some actions
+bool key_handler_up(key_handler* self, SDL_Keycode key);
 
 #endif

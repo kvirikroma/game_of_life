@@ -15,6 +15,8 @@ typedef struct
     pthread_t output_thread;
     event_listener input;
     pthread_mutex_t drawer_lock;
+    bool threads_started;
+    bool redrawed;
 }
 io_threader;
 

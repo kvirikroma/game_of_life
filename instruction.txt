@@ -4,7 +4,7 @@ KEYBOARD:
     s - save game to "saved_game.life"
     l - load game from "saved_game.life"
     1-9 buttons - change game speed (warning: fps drops and input lags on high speed)
-    0 button - make game do a single step and stop
+    0 button - make game do a single step and pause (works even when paused)
     MOVEMENT:
         up arrow - move up across the field
         down arrow - move down across the field
