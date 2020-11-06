@@ -35,7 +35,7 @@ rm -rf ./compiler_symlinks
 cd ../
 
 #gcc -Wall -m64 -no-pie -gdwarf-2 -o ./game_of_life ./*.c ./asm/*.o -Bstatic -lSDL2 -lm -lpthread -Ofast # works worse, IDK why
-clang-6.0 -Wall -gdwarf-2 ./*.c ./asm/*.o -Bstatic -lSDL2 -lm -lpthread -m64 -Ofast -o ./game_of_life  # works usually as i expect it do
+clang-10 -Wall -gdwarf-2 ./*.c ./asm/*.o -Bstatic -lSDL2 -lm -lpthread -m64 -Ofast -o ./game_of_life  # works usually as i expect it do
 
 rm -rf ./asm/*.o
 rm -rf ./*.o
