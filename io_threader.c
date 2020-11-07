@@ -96,14 +96,11 @@ void* input_thread_function(void* parameters)
             new_move_time = get_current_millisecond();
             if ((new_move_time - last_move_time) > 30)
             {
-                io_threader_lock_drawer(self);
-                event_listener_apply_movement(&self->input, self, false);
-                self->redrawed = false;
-                io_threader_unlock_drawer(self);
+                event_listener_apply_movement(&self->input, self, true);
                 last_move_time = new_move_time;
             }
             draw_line = false;
-            sleep_ms(1);
+            sleep_ms(0.5);
         }
         sleep_ms(0.01);
     }

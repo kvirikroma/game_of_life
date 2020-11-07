@@ -183,9 +183,11 @@ static void scale_zoom(event_listener* self, io_threader* threader)
 void event_listener_apply_movement(event_listener* self, void* threader, bool lock_drawer)
 {
     io_threader* iothreader = (io_threader*)threader;
-    if (lock_drawer)
+    bool drawer_locked = false;
+    if (lock_drawer && (self->move || self->zoom_out || self->zoom_in))
     {
         io_threader_lock_drawer(iothreader);
+        drawer_locked = true;
     }
     if (self->move)
     {
@@ -210,7 +212,7 @@ void event_listener_apply_movement(event_listener* self, void* threader, bool lo
         self->moved_once = false;
     }
     scale_zoom(self, iothreader);
-    if (lock_drawer)
+    if (drawer_locked)
     {
         io_threader_unlock_drawer(iothreader);
     }

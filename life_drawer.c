@@ -4,7 +4,7 @@
 
 #define ZOOM_BORDERS_SIZE  8
 #define ZOOM_LAYOUT_COLOR  0x22888888
-#define GRID_MIN_CELL_SIZE 8
+#define GRID_MIN_CELL_SIZE 10
 
 
 typedef enum
