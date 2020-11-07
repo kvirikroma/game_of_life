@@ -45,6 +45,7 @@ void event_listener_listen(event_listener* self, void* threader)
                     {
                         self->speed = 1;
                         self->move = false;
+                        self->pause = true;
                         self->moved_once = true;
                         self->lmb_pressed = false;
                         self->rmb_pressed = false;
@@ -73,6 +74,7 @@ void event_listener_listen(event_listener* self, void* threader)
                         if (load_runner_snapshot_from_file(&file_snapshot, SAVEGAME_FILENAME, false))
                         {
                             self->speed = 1;
+                            self->pause = true;
 
                             io_threader_lock_drawer(threader);
                             life_runner_from_snapshot(&iothreader->drawer.game, file_snapshot, true);
