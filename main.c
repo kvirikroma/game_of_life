@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
+#include <signal.h>
 
 #include "include/utils.h"
 #include "include/main.h"
@@ -10,9 +11,17 @@ uint32_t step_delay;  // recommended minimum is 45
 io_threader threader;
 
 
+static void signal_handler(int code)
+{
+    threader.input.run = false;
+    io_threader_delete(&threader);
+    exit(code);
+}
+
+
 int main()
 {
-    step_delay = 150;
+    step_delay = 120;
     int64_t msec_total = 0;
 
     io_threader_init(&threader, 1600, 900, 512, 288);
@@ -20,6 +29,8 @@ int main()
     {
         sleep_ms(1);
     }
+    signal(SIGINT, signal_handler);
+    signal(SIGTERM, signal_handler);
     
     while (threader.input.run)
     {
@@ -35,7 +46,7 @@ int main()
             if (!threader.input.pause)
             {
                 io_threader_lock_drawer(&threader);
-                if (actual_step_delay > msec_total)
+                if (((actual_step_delay * 3) / 2) > msec_total)
                 {
                     life_runner_make_step(&threader.drawer.game);
                     threader.redrawed = false;

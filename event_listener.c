@@ -14,6 +14,8 @@ void event_listener_init(event_listener* self)
     self->moved_once = false;
     self->move = false;
     self->speed = 1;
+    self->zoom_in = false;
+    self->zoom_out = false;
     key_handler_init(&self->keyhandler, &self->pause, &self->movement, &self->move, &self->speed);
 }
 
@@ -36,6 +38,7 @@ void event_listener_listen(event_listener* self, void* threader)
             }
             case SDL_KEYDOWN:
             {
+                bool flush_event = true;
                 switch (self->event.key.keysym.sym)
                 {
                     case SDLK_c:
@@ -46,6 +49,7 @@ void event_listener_listen(event_listener* self, void* threader)
                         self->lmb_pressed = false;
                         self->rmb_pressed = false;
                         bit_array2d* new_field = bit_array2d_init(iothreader->drawer.game.field->x_size, iothreader->drawer.game.field->y_size);
+
                         io_threader_lock_drawer(threader);
                         bit_array2d_delete(iothreader->drawer.game.field);
                         iothreader->drawer.game.field = new_field;
@@ -69,11 +73,13 @@ void event_listener_listen(event_listener* self, void* threader)
                         if (load_runner_snapshot_from_file(&file_snapshot, SAVEGAME_FILENAME, false))
                         {
                             self->speed = 1;
+
                             io_threader_lock_drawer(threader);
                             life_runner_from_snapshot(&iothreader->drawer.game, file_snapshot, true);
                             life_drawer_field_fit(&iothreader->drawer);
                             iothreader->redrawed = false;
                             io_threader_unlock_drawer(threader);
+
                             life_runner_snapshot_delete(&file_snapshot);
                         }
                         break;
@@ -82,11 +88,11 @@ void event_listener_listen(event_listener* self, void* threader)
                     {
                         self->speed = 0;
                         self->pause = true;
+
                         io_threader_lock_drawer(threader);
                         life_runner_make_step(&iothreader->drawer.game);
                         iothreader->redrawed = false;
                         io_threader_unlock_drawer(threader);
-                        
                         break;
                     }
                     case SDLK_ESCAPE:
@@ -97,11 +103,15 @@ void event_listener_listen(event_listener* self, void* threader)
 
                     default:
                     {
-                        if (key_handler_down(&self->keyhandler, self->event.key.keysym.sym))
+                        if (!key_handler_down(&self->keyhandler, self->event.key.keysym.sym))
                         {
-                            SDL_FlushEvent(SDL_KEYDOWN);
+                            flush_event = false;
                         }
                     }
+                }
+                if (flush_event)
+                {
+                    SDL_FlushEvent(SDL_KEYDOWN);
                 }
                 break;
             }
@@ -129,7 +139,41 @@ void event_listener_listen(event_listener* self, void* threader)
                 }
                 break;
             }
+            case SDL_MOUSEWHEEL:
+            {
+                if (self->event.wheel.y > 0)
+                {
+                    self->zoom_in = true;
+                }
+                if (self->event.wheel.y < 0)
+                {
+                    self->zoom_out = true;
+                }
+            }
         }
+    }
+}
+
+
+static void scale_zoom(event_listener* self, io_threader* threader)
+{
+    if (!threader->mouse_inited)
+    {
+        return;
+    }
+    coordinates mouse = (coordinates){0, 0};
+    SDL_GetMouseState((int*)&mouse.x, (int*)&mouse.y);
+    if (self->zoom_in)
+    {
+        life_drawer_zoom_in(&threader->drawer, mouse);
+        self->zoom_in = false;
+        threader->redrawed = false;
+    }
+    if (self->zoom_out)
+    {
+        life_drawer_zoom_out(&threader->drawer, mouse);
+        self->zoom_out = false;
+        threader->redrawed = false;
     }
 }
 
@@ -137,6 +181,10 @@ void event_listener_listen(event_listener* self, void* threader)
 void event_listener_apply_movement(event_listener* self, void* threader, bool lock_drawer)
 {
     io_threader* iothreader = (io_threader*)threader;
+    if (lock_drawer)
+    {
+        io_threader_lock_drawer(iothreader);
+    }
     if (self->move)
     {
         if ((!self->moved_once && self->keyhandler.pressed_keys.alt) || !self->keyhandler.pressed_keys.alt)
@@ -150,23 +198,18 @@ void event_listener_apply_movement(event_listener* self, void* threader, bool lo
             {
                 distance *= 2;
             }
-            if (lock_drawer)
-            {
-                io_threader_lock_drawer(iothreader);
-                life_runner_move_game(&iothreader->drawer.game, self->movement, distance);
-                iothreader->redrawed = false;
-                io_threader_unlock_drawer(iothreader);
-            }
-            else
-            {
-                life_runner_move_game(&iothreader->drawer.game, self->movement, distance);
-                iothreader->redrawed = false;
-            }
+            life_runner_move_game(&iothreader->drawer.game, self->movement, distance);
+            iothreader->redrawed = false;
         }
         self->moved_once = true;
     }
     else
     {
         self->moved_once = false;
+    }
+    scale_zoom(self, iothreader);
+    if (lock_drawer)
+    {
+        io_threader_unlock_drawer(iothreader);
     }
 }

@@ -17,6 +17,7 @@ typedef struct
     pthread_mutex_t drawer_lock;
     bool threads_started;
     bool redrawed;
+    bool mouse_inited;
 }
 io_threader;
 

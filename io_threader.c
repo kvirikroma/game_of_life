@@ -8,6 +8,7 @@ void io_threader_init(io_threader* self, uint32_t window_x, uint32_t window_y, u
     self->input.run = true;
     self->threads_started = false;
     self->redrawed = false;
+    self->mouse_inited = false;
     pthread_mutex_init((pthread_mutex_t*)&self->drawer_lock, NULL);
     output_thread_params* output_params = malloc(sizeof(output_thread_params));
     output_params->window_size = (coordinates){window_x, window_y};
@@ -46,22 +47,21 @@ void* input_thread_function(void* parameters)
     last_mouse_position = (coordinates){0, 0};
     event_listener_init(&self->input);
     self->threads_started = true;
-    bool mouse_inited = false;
     bool draw_line = false;
     int64_t last_move_time = 0;
     int64_t new_move_time;
     while (!self->stop_flag)
     {
         event_listener_listen(&self->input, self);
-        if (!mouse_inited)
+        if (!self->mouse_inited)
         {
             SDL_GetMouseState((int*)&last_mouse_position.x, (int*)&last_mouse_position.y);
             if (last_mouse_position.x || last_mouse_position.y)
             {
-                mouse_inited = true;
+                self->mouse_inited = true;
             }
         }
-        if (mouse_inited && (self->input.lmb_pressed ^ self->input.rmb_pressed))
+        if (self->mouse_inited && (self->input.lmb_pressed ^ self->input.rmb_pressed))
         {
             coordinates new_mouse_position;
             SDL_GetMouseState((int*)&new_mouse_position.x, (int*)&new_mouse_position.y);
@@ -141,6 +141,7 @@ void* output_thread_function(void* parameters)
             sleep_ms(1);
         }
 
+        life_drawer_draw_zoom_layout(&self->drawer);
         SDL_UpdateWindowSurface(self->drawer.window);
         sleep_ms(0.5);
     }

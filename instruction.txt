@@ -15,3 +15,5 @@ KEYBOARD:
 MOUSE:
     lmb - add a cell
     rmb - remove a cell
+    mwheel up - zoom in
+    mwheel down - zoom out

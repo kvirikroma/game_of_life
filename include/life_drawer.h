@@ -49,9 +49,6 @@ void life_drawer_draw_line(life_drawer* self, coordinates begin, coordinates end
 // Recalculate size ratio
 void life_drawer_field_fit(life_drawer* self);
 
-// Set zoom
-void life_drawer_change_zoom(life_drawer* self, coordinates size);
-
 // Zoom in, follow mouse
 void life_drawer_zoom_in(life_drawer* self, coordinates mouse);
 
@@ -63,5 +60,8 @@ bool life_drawer_is_zoomed(const life_drawer* self);
 
 // Get size of window
 coordinates life_drawer_get_window_size(const life_drawer* self);
+
+// Draw borders and grid when zoomed
+void life_drawer_draw_zoom_layout(const life_drawer* self);
 
 #endif

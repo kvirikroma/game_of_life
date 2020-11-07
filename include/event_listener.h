@@ -16,6 +16,8 @@ typedef struct
     bool moved_once;
     direction movement;
     bool move;
+    bool zoom_in;
+    bool zoom_out;
 }
 event_listener;
 
