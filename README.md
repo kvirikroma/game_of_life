@@ -35,4 +35,5 @@ mwheel down - zoom out
 5. There's no intuitive GUI
 6. No ability to rollback last steps of game
 7. Life runner calculates new step too slow
+8. There's no VSync
 </pre>
