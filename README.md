@@ -36,4 +36,5 @@ mwheel down - zoom out
 6. No ability to rollback last steps of game
 7. Life runner calculates new step too slow
 8. There's no VSync
+9. Input lags on some systems (even on low speed)
 </pre>
