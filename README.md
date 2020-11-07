@@ -1,5 +1,5 @@
 # game_of_life
-In this project i try to implement the "game of life" in C and assembly. Just because i can (=
+In this project i try to implement the "game of life" in C and assembly. Just for fun (=
 
 <b>Instruction:</b><br>
 <b>Keyboard:</b><br>
