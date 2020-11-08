@@ -280,7 +280,7 @@ void life_drawer_draw_line(life_drawer* self, coordinates begin, coordinates end
         }
         while ((abs(y) < abs(line_length_y) + 1) && (abs(x) < abs(line_length_x) + 1));
     }
-    else if (line_length_x && (abs(line_length_x) > abs(line_length_y)))
+    else if (line_length_x && (abs(line_length_x) >= abs(line_length_y)))
     {
         double ratio = (double)line_length_y / (double)line_length_x;
         do
