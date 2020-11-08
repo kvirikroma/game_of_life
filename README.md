@@ -31,10 +31,9 @@ mwheel down - zoom out
 1. Cannot resize window
 2. Cannot resize game field
 3. Cells may be not square if, say, window is 4:3 and game field is 16:9
-4. Speed changing is too simple
+4. Speed changing is too simple (no choice to change step delay or steps per iteration)
 5. There's no intuitive GUI
 6. No ability to rollback last steps of game
-7. Life runner calculates new step too slow
+7. Life runner calculates new step too slow (and logic works on single thread)
 8. There's no VSync
-9. Input lags on some systems (even on low speed)
 </pre>

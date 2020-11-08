@@ -53,7 +53,7 @@ int main()
                 }
                 else
                 {
-                    for (uint8_t step = 0; step < round(pow(1.432, threader.input.speed)); step++)
+                    for (uint8_t step = 0; step < round(pow(1.43, threader.input.speed)); step++)
                     {
                         life_runner_make_step(&threader.drawer.game);
                         threader.redrawed = false;
