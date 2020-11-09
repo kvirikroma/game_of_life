@@ -57,13 +57,8 @@ int main()
                     {
                         life_runner_make_step(&threader.drawer.game);
                         threader.redrawed = false;
-                        if ((step % 7) == 1)
+                        if ((step % 6) == 1)
                         {
-                            if (!threader.redrawed)
-                            {
-                                life_drawer_redraw(&threader.drawer);
-                                threader.redrawed = true;
-                            }
                             event_listener_listen(&threader.input, &threader);
                             event_listener_apply_movement(&threader.input, &threader, false);
                         }
