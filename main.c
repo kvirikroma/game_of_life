@@ -46,7 +46,7 @@ int main()
             if (!threader.input.pause)
             {
                 io_threader_lock_drawer(&threader);
-                if (((actual_step_delay * 3) / 2) > msec_total)
+                if ((((double)actual_step_delay * 2.5) / 2) > msec_total)
                 {
                     life_runner_make_step(&threader.drawer.game);
                     threader.redrawed = false;

@@ -8,6 +8,10 @@ global life_runner_init             ;init life runner with values
 global life_runner_delete           ;free the life runner's parts that are allocated in heap
 
 
+segment .data
+    popcnt_allowed db 0
+
+
 segment .text
     life_runner_init:
         ;param rdi - runner pointer
@@ -40,6 +44,15 @@ segment .text
         mov byte [rdi + life_runner.max_neighbors_to_exist], 3
         mov byte [rdi + life_runner.disable_cyclic_adressing], 0
 
+        ; checking for popcnt instruction
+        push rbx
+        mov eax, 1
+        cpuid
+        pop rbx
+        shr rcx, 23
+        and cl, 1
+        mov [popcnt_allowed], cl
+
         leave
         ret
 
@@ -68,98 +81,89 @@ segment .text
         ;push rbp
         ;mov rbp, rsp
 
-        push rdi  ; [rsp+24] - runner   ; was [rbp-8] before
-        push rsi  ; [rsp+16] - X        ; was [rbp-16] before
-        push rdx  ; [rsp+8] - Y         ; was [rbp-24] before
+        push r15
+        push r14
+        push r13
+        push r12
+        mov r15, rdi  ; r15 - runner
+        mov r14, [r15 + life_runner.field]  ; r15 - field
+        mov r12, rsi  ; r12 - X
+        mov r13, rdx  ; r13 - Y 
+        push rbx
 
         %macro reload_variables 0
-            mov rdi, [rsp+24]
-            mov rsi, [rsp+16]
-            mov rdx, [rsp+8]
+            mov rsi, r12
+            mov rdx, r13
+            mov rcx, r14
         %endmacro
 
         %macro save_bit 1
-            movzx eax, byte [rdi + life_runner.disable_cyclic_adressing]
+            movzx eax, byte [r15 + life_runner.disable_cyclic_adressing]
             mov rdi, rcx
             mov ecx, eax
             call bit_array2d_get_bit
             shl al, %1
-            or [rsp], al
+            or bl, al
         %endmacro
 
         ;-1, -1
-        mov rcx, [rdi + life_runner.field]
+        mov rcx, r14
         dec esi
         dec edx
-        movzx eax, byte [rdi + life_runner.disable_cyclic_adressing]
+        movzx eax, byte [r15 + life_runner.disable_cyclic_adressing]
         mov rdi, rcx
         mov ecx, eax
         call bit_array2d_get_bit
-        push rax  ; [rsp] - result      ; was [rbp-32] before
+        mov bl, al  ; [rsp] - result      ; was [rbp-32] before
 
         ;0, -1
         reload_variables
-        mov rcx, [rdi + life_runner.field]
         dec edx
         save_bit 1
 
         ;+1, -1
         reload_variables
-        mov rcx, [rdi + life_runner.field]
         inc esi
         dec edx
         save_bit 2
 
         ;-1, 0
         reload_variables
-        mov rcx, [rdi + life_runner.field]
         dec esi
         save_bit 3
 
         ;+1, 0
         reload_variables
-        mov rcx, [rdi + life_runner.field]
         inc esi
         save_bit 4
 
         ;-1, +1
         reload_variables
-        mov rcx, [rdi + life_runner.field]
         dec esi
         inc edx
         save_bit 5
 
         ;0, +1
         reload_variables
-        mov rcx, [rdi + life_runner.field]
         inc edx
         save_bit 6
 
         ;+1, +1
         reload_variables
-        mov rcx, [rdi + life_runner.field]
         inc esi
         inc edx
         save_bit 7
 
 
         ;get number of neighbors from mask
-        mov rdi, [rsp+24]
-        mov rax, [rsp]
-        and al, [rdi + life_runner.neighbors_that_matter]
-        and eax, 0FFh
-        mov [rsp], rax
-
-        ; checking for popcnt instruction
-        cpuid
-        mov edx, [rsp]
-        shr ecx, 23
+        movzx rdx, bl
+        and dl, [r15 + life_runner.neighbors_that_matter]
         
-        and cl, 1
-        jz not_have_sse4
+        cmp byte [popcnt_allowed], 1
+        jne not_have_popcnt
             popcnt eax, edx
             jmp lrcn_end
-        not_have_sse4:
+        not_have_popcnt:
             mov ecx, 8
             xor eax, eax
             lrcn_counting:
@@ -172,7 +176,11 @@ segment .text
                 loop lrcn_counting
         lrcn_end:
 
-        add rsp, 32  ; was "leave" before
+        pop rbx
+        pop r12
+        pop r13
+        pop r14
+        pop r15
         ret
         
     life_runner_make_step:
