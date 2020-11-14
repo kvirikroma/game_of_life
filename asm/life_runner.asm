@@ -13,12 +13,24 @@ segment .text
         ;param rdi - runner pointer
         ;param rsi - size by X axis
         ;param rdx - size by Y axis
-        push rdi
+        push rbp
+        mov rbp, rsp
+
+        push rdi  ; [rbp-8] - runner
+        push rsi  ; [rbp-16] - X
+        push rdx  ; [rbp-24] - Y
+
         mov rdi, rsi
         mov rsi, rdx
         call bit_array2d_init
-        pop rdi
+        mov rdi, [rbp-8]
         mov [rdi + life_runner.field], rax
+        mov [rdi + life_runner.field_1], rax
+        mov rdi, [rbp-16]
+        mov rsi, [rbp-24]
+        call bit_array2d_init
+        mov rdi, [rbp-8]
+        mov [rdi + life_runner.field_2], rax
 
         ;default rules
         mov byte [rdi + life_runner.neighbors_that_matter], 0FFh
@@ -27,31 +39,43 @@ segment .text
         mov byte [rdi + life_runner.min_neighbors_to_exist], 2
         mov byte [rdi + life_runner.max_neighbors_to_exist], 3
         mov byte [rdi + life_runner.disable_cyclic_adressing], 0
+
+        leave
         ret
 
     life_runner_delete:
         ;param rdi - runner pointer
-        mov rsi, [rdi + life_runner.field]
-        mov qword [rdi + life_runner.field], 0
+        push rdi
+        mov rsi, [rdi + life_runner.field_1]
+        mov qword [rdi + life_runner.field_1], 0
         mov rdi, rsi
         call bit_array2d_delete
+        mov rdi, [rsp]
+        mov rsi, [rdi + life_runner.field_2]
+        mov qword [rdi + life_runner.field_2], 0
+        mov rdi, rsi
+        call bit_array2d_delete
+        pop rdi
+        mov qword [rdi + life_runner.field], 0
         ret
         
     life_runner_count_neighbors:
         ;param rdi - runner pointer
         ;param rsi (esi actually) - X coordinate
         ;param rdx (edx actually) - Y coordinate
-        push rbp
-        mov rbp, rsp
+        
+        ; changed to stack_frame-less form
+        ;push rbp
+        ;mov rbp, rsp
 
-        push rdi  ; [rbp-8] - runner
-        push rsi  ; [rbp-16] - X
-        push rdx  ; [rbp-24] - Y
+        push rdi  ; [rsp+24] - runner   ; was [rbp-8] before
+        push rsi  ; [rsp+16] - X        ; was [rbp-16] before
+        push rdx  ; [rsp+8] - Y         ; was [rbp-24] before
 
         %macro reload_variables 0
-            mov rdi, [rbp-8]
-            mov rsi, [rbp-16]
-            mov rdx, [rbp-24]
+            mov rdi, [rsp+24]
+            mov rsi, [rsp+16]
+            mov rdx, [rsp+8]
         %endmacro
 
         %macro save_bit 1
@@ -60,7 +84,7 @@ segment .text
             mov ecx, eax
             call bit_array2d_get_bit
             shl al, %1
-            or [rbp-32], al
+            or [rsp], al
         %endmacro
 
         ;-1, -1
@@ -71,7 +95,7 @@ segment .text
         mov rdi, rcx
         mov ecx, eax
         call bit_array2d_get_bit
-        push rax  ; [rbp-32] - result
+        push rax  ; [rsp] - result      ; was [rbp-32] before
 
         ;0, -1
         reload_variables
@@ -120,15 +144,15 @@ segment .text
 
 
         ;get number of neighbors from mask
-        mov rdi, [rbp-8]
-        mov rax, [rbp-32]
+        mov rdi, [rsp+24]
+        mov rax, [rsp]
         and al, [rdi + life_runner.neighbors_that_matter]
         and eax, 0FFh
-        mov [rbp-32], rax
+        mov [rsp], rax
 
         ; checking for popcnt instruction
         cpuid
-        mov edx, [rbp-32]
+        mov edx, [rsp]
         shr ecx, 23
         
         and cl, 1
@@ -148,7 +172,7 @@ segment .text
                 loop lrcn_counting
         lrcn_end:
 
-        leave
+        add rsp, 32  ; was "leave" before
         ret
         
     life_runner_make_step:
@@ -157,13 +181,24 @@ segment .text
         mov rbp, rsp
 
         push rdi  ; [rbp-8] - runner pointer
-        mov rdi, [rdi + life_runner.field]
+        mov rcx, [rdi + life_runner.field]
+        
+        cmp rcx, [rdi + life_runner.field_1]
+        jne select_1st_field_as_new
+            ; if current field is 1st
+            mov rax, [rdi + life_runner.field_2]
+            jmp end_select_field
+        select_1st_field_as_new:
+            ; if current field is 2nd
+            mov rax, [rdi + life_runner.field_1]
+        end_select_field:
+
+        mov rdi, rcx
         push rdi  ; [rbp-16] - old field
         mov esi, [rdi + bit_array2d.y_size]
         push rsi  ; [rbp-24] - Y size
         mov edi, [rdi + bit_array2d.x_size]
         push rdi  ; [rbp-32] - X size
-        call bit_array2d_init
         push rax  ; [rbp-40] - new field
 
         %define runner    [rbp-8]
@@ -237,8 +272,6 @@ segment .text
         mov rdi, runner
         mov rsi, new_field
         mov [rdi + life_runner.field], rsi
-        mov rdi, old_field
-        call bit_array2d_delete
         
         %undef runner
         %undef old_field

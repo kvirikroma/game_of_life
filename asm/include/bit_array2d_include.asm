@@ -10,6 +10,7 @@ extern bit_array2d_get_bit
 extern bit_array2d_set_bit
 extern bit_array2d_resize
 extern bit_array2d_copy_content
+extern bit_array2d_erase
 
 
 %endif

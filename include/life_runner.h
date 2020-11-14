@@ -8,7 +8,9 @@
 
 typedef struct
 {
-    bit_array2d* field;
+    bit_array2d* field;     //ptr to current field
+    bit_array2d* field_1;   //1st field
+    bit_array2d* field_2;   //2nd field
     uint8_t min_neighbors_to_exist;
     uint8_t max_neighbors_to_exist;
     uint8_t min_neighbors_to_be_born;

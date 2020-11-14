@@ -78,11 +78,9 @@ void event_listener_listen(event_listener* self, void* threader)
                         self->moved_once = true;
                         self->lmb_pressed = false;
                         self->rmb_pressed = false;
-                        bit_array2d* new_field = bit_array2d_init(iothreader->drawer.game.field->x_size, iothreader->drawer.game.field->y_size);
 
                         io_threader_lock_drawer(threader);
-                        bit_array2d_delete(iothreader->drawer.game.field);
-                        iothreader->drawer.game.field = new_field;
+                        bit_array2d_erase(iothreader->drawer.game.field);
                         iothreader->redrawed = false;
                         io_threader_unlock_drawer(threader);
                         flush_event = true;

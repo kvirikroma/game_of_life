@@ -16,6 +16,9 @@ bit_array2d;
 // Initialize bit_array2d of given size in heap
 extern bit_array2d* bit_array2d_init(uint32_t size_x, uint32_t size_y);
 
+// Erase bit_array2d content (except size data)
+extern void bit_array2d_erase(bit_array2d* self);
+
 // Free memory allocated for bit_array2d
 extern void bit_array2d_delete(bit_array2d* self);
 

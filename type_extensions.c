@@ -7,7 +7,16 @@
 
 void life_runner_move_game(life_runner* self, direction move_direction, uint32_t distance)
 {
-    bit_array2d* new_field = bit_array2d_init(self->field->x_size, self->field->y_size);
+    bit_array2d* new_field;
+    if (self->field == self->field_1)
+    {
+        new_field = self->field_2;
+    }
+    else
+    {
+        new_field = self->field_1;
+    }
+    bit_array2d_erase(new_field);
     for (uint32_t y = 0; y < self->field->y_size; y++)
     {
         for (uint32_t x = 0; x < self->field->x_size; x++)
@@ -60,7 +69,6 @@ void life_runner_move_game(life_runner* self, direction move_direction, uint32_t
             }
         }
     }
-    bit_array2d_delete(self->field);
     self->field = new_field;
 }
 
@@ -166,10 +174,12 @@ void life_runner_from_snapshot(life_runner* self, life_runner_snapshot snapshot,
     self->disable_cyclic_adressing = snapshot.data[5];
     if (runner_was_initialized)
     {
-        bit_array2d_delete(self->field);
+        bit_array2d_delete(self->field_1);
+        bit_array2d_delete(self->field_2);
     }
     bit_array2d* array_in_data = (bit_array2d*)(snapshot.data + 6);
-    self->field = bit_array2d_init(array_in_data->x_size, array_in_data->y_size);
+    self->field = self->field_1 = bit_array2d_init(array_in_data->x_size, array_in_data->y_size);
+    self->field_2 = bit_array2d_init(array_in_data->x_size, array_in_data->y_size);
     memcpy(self->field, array_in_data, snapshot.size - 6);
 }
 

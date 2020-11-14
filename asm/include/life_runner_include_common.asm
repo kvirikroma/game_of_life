@@ -4,6 +4,8 @@
 
 struc life_runner
     .field                      resq 1
+    .field_1                    resq 1
+    .field_2                    resq 1
     .min_neighbors_to_exist     resb 1
     .max_neighbors_to_exist     resb 1
     .min_neighbors_to_be_born   resb 1

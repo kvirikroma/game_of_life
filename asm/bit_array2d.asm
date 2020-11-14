@@ -9,15 +9,14 @@ global bit_array2d_init     ; initializes array of needed size in memory
 global bit_array2d_delete   ; deletes an bit_array2d* (param rdi - bit_array2d* to delete)
 global bit_array2d_get_bit  ; returns value of bit by its coordinates
 global bit_array2d_set_bit  ; sets bit value by its coordinates
-global bit_array2d_coordinates_to_index ; represent (x, y) coordinates as index in the field
-global bit_field_get_bit    ; get value of bit by number
-global bit_field_set_bit    ; set value of bit by number
 global bit_array2d_resize   ; change size of bit_array2d (frees old and returns new one)
 global bit_array2d_copy_content ; copy bits from one array to another with an offset
+global bit_array2d_erase    ; set all bits to zero
 
 
 segment .text
     bit_field_get_bit:
+        ; get value of bit by number
         ; param rdi - address of field
         ; param rsi - number of bit to return
         mov rax, rsi
@@ -31,6 +30,7 @@ segment .text
         ret
 
     bit_field_set_bit:
+        ; set value of bit by number
         ; param rdi - address of field
         ; param rsi - number of bit to set
         ; param rdx - value (non-0 values will be accepted as 1)
@@ -50,6 +50,19 @@ segment .text
             and [rdi + rax], r8b
         bfsb_end:
 
+        ret
+    
+    bit_array2d_erase:
+        ; param rdi - bit_array2d*
+        mov eax, [rdi + bit_array2d.x_size]
+        mov esi, [rdi + bit_array2d.y_size]
+        mul esi
+        shr rax, 3
+        inc rax
+        add rdi, BIT_ARRAY2D_SIZE
+        mov rcx, rax
+        xor eax, eax
+        rep stosb
         ret
 
     bit_array2d_init:
@@ -90,6 +103,7 @@ segment .text
         ret
 
     bit_array2d_coordinates_to_index:
+        ; represent (x, y) coordinates as index in the field
         ; param rdi - bit_array2d*
         ; param rsi - coordinate by X axis (in bits)
         ; param rdx - coordinate by Y axis (in bits)
@@ -240,6 +254,7 @@ segment .text
         ret
     
     bit_array2d_resize:
+        ; returns another bit_array2d* and deletes the old one
         ; param rdi - bit_array2d*
         ; param rsi - size by X axis (in bits)
         ; param rdx - size by Y axis (in bits)
