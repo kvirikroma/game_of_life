@@ -74,8 +74,8 @@ segment .text
         
     life_runner_count_neighbors:
         ;param rdi - runner pointer
-        ;param rsi (esi actually) - X coordinate
-        ;param rdx (edx actually) - Y coordinate
+        ;param esi - X coordinate
+        ;param edx - Y coordinate
         
         push r15
         push r14
@@ -86,31 +86,28 @@ segment .text
         mov r14, [r15 + life_runner.field]  ; r15 - field
         mov r12, rsi  ; r12 - X
         mov r13, rdx  ; r13 - Y 
+        mov bh, [rdi + life_runner.disable_cyclic_adressing]  ; bh - disable_cyclic_adressing
 
         %macro reload_variables 0
             mov rsi, r12
             mov rdx, r13
-            mov rcx, r14
         %endmacro
 
         %macro save_bit 1
-            movzx eax, byte [r15 + life_runner.disable_cyclic_adressing]
-            mov rdi, rcx
-            mov ecx, eax
+            movzx ecx, bh
+            mov rdi, r14
             call bit_array2d_get_bit
             shl al, %1
             or bl, al
         %endmacro
 
         ;-1, -1
-        mov rcx, r14
         dec esi
         dec edx
-        movzx eax, byte [r15 + life_runner.disable_cyclic_adressing]
-        mov rdi, rcx
-        mov ecx, eax
+        movzx ecx, bh
+        mov rdi, r14
         call bit_array2d_get_bit
-        mov bl, al  ; [rsp] - result
+        mov bl, al  ; bl - result
 
         ;0, -1
         reload_variables
@@ -152,7 +149,7 @@ segment .text
 
 
         ;get number of neighbors from mask
-        movzx rdx, bl
+        movzx edx, bl
         and dl, [r15 + life_runner.neighbors_that_matter]
         
         cmp byte [popcnt_allowed], 1

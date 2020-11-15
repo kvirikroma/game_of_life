@@ -125,6 +125,7 @@ segment .text
         xor edx, edx
         div esi
         mov r8d, edx  ; r8d - X
+
         mov eax, ecx
         mov ecx, [rdi + bit_array2d.y_size]
         xor edx, edx
