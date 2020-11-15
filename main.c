@@ -46,14 +46,14 @@ int main()
             if (!threader.input.pause)
             {
                 io_threader_lock_drawer(&threader);
-                if ((((double)actual_step_delay * 2.5) / 2) > msec_total)
+                if ((((double)actual_step_delay * 2.8) / 2) > msec_total)
                 {
                     life_runner_make_step(&threader.drawer.game);
                     threader.redrawed = false;
                 }
                 else
                 {
-                    for (uint8_t step = 0; step < round(pow(1.43, threader.input.speed)); step++)
+                    for (uint8_t step = 0; step < round(pow(1.432, threader.input.speed)); step++)
                     {
                         life_runner_make_step(&threader.drawer.game);
                         threader.redrawed = false;
