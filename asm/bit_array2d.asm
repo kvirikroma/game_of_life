@@ -21,11 +21,11 @@ segment .text
         ; param rsi - number of bit to return
         mov rax, rsi
         shr rax, 3
-        and esi, 111b
+        mov cl, 7  ; it's also 111b
+        and sil, cl
         mov al, [rdi + rax]
-        mov ecx, 7
         sub cl, sil
-        shr eax, cl
+        shr al, cl
         and eax, 1
         ret
 
@@ -282,4 +282,27 @@ segment .text
         pop rax  ; deleted [rbp-32]
 
         leave
+        ret
+    
+    bit_array2d_is_square_empty:
+        ; check if there are some '1' bits in square
+        ; no cyclic addressing here!
+        ; rdi - bit_array2d*
+        ; esi - square X  //must be divisible by 8
+        ; edx - square Y
+        ; ecx - square size X  //must be divisible by 8; should be EQUAL 64
+        ; r8d - square size Y
+        mov r9d, ecx
+        mov r10d, edx
+        shr ecx, 3
+        shr esi, 3
+        
+        ; TODO
+
+        ise_return_0:
+            xor eax, eax
+            jmp ise_return_end
+        ise_return_1:
+            mov eax, 1
+        ise_return_end:
         ret
