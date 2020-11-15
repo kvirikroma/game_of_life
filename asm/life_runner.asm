@@ -77,19 +77,15 @@ segment .text
         ;param rsi (esi actually) - X coordinate
         ;param rdx (edx actually) - Y coordinate
         
-        ; changed to stack_frame-less form
-        ;push rbp
-        ;mov rbp, rsp
-
         push r15
         push r14
         push r13
         push r12
+        push rbx
         mov r15, rdi  ; r15 - runner
         mov r14, [r15 + life_runner.field]  ; r15 - field
         mov r12, rsi  ; r12 - X
         mov r13, rdx  ; r13 - Y 
-        push rbx
 
         %macro reload_variables 0
             mov rsi, r12
@@ -114,7 +110,7 @@ segment .text
         mov rdi, rcx
         mov ecx, eax
         call bit_array2d_get_bit
-        mov bl, al  ; [rsp] - result      ; was [rbp-32] before
+        mov bl, al  ; [rsp] - result
 
         ;0, -1
         reload_variables
@@ -214,68 +210,72 @@ segment .text
         %define y_size    [rbp-24]
         %define x_size    [rbp-32]
         %define new_field [rbp-40]
+
+        push r15
+        push r14
+        push r13
+        push r12
+        push rbx
         
-        mov rcx, y_size
+        mov r12, y_size  ; r12 = ((length) - (current line (Y coordinate)))
         walking_through_lines:
-            push rcx  ; [rbp-48] - (length) minus (current line (Y coordinate))
-            mov rcx, x_size
+            mov r13, x_size  ; r13 = ((length) - (current column (X coordinate)))
             walking_through_columns:
-                push rcx  ; [rbp-56] - (length) minus (current column (X coordinate))
-                
                 mov rdi, runner
                 mov rsi, x_size
-                sub rsi, rcx
+                sub rsi, r13
                 mov rdx, y_size
-                sub rdx, [rbp-48]
-                push rsi  ; [rbp-64] - X coordinate
-                push rdx  ; [rbp-72] - Y coordinate
+                sub rdx, r12
+                mov r14, rsi  ; r14 - X coordinate
+                mov r15, rdx  ; r15 - Y coordinate
                 call life_runner_count_neighbors
-                mov rdx, [rbp-72]
-                mov rsi, [rbp-64]
-                push rax  ; [rbp-80] - neighbors
+                mov rbx, rax  ; rbx - neighbors
+                mov rdx, r15
+                mov rsi, r14
                 mov rdi, old_field
                 call bit_array2d_get_bit
                 
-                mov rdx, [rbp-80]
                 cmp eax, 0
                 je empty_cell
                     mov rdi, runner
-                    cmp dl, [rdi + life_runner.min_neighbors_to_exist]
+                    cmp bl, [rdi + life_runner.min_neighbors_to_exist]
                     jl unset_cell
-                    cmp dl, [rdi + life_runner.max_neighbors_to_exist]
+                    cmp bl, [rdi + life_runner.max_neighbors_to_exist]
                     jg unset_cell
                     jmp set_cell
                 empty_cell:
                     mov rdi, runner
-                    cmp dl, [rdi + life_runner.min_neighbors_to_be_born]
+                    cmp bl, [rdi + life_runner.min_neighbors_to_be_born]
                     jl unset_cell
-                    cmp dl, [rdi + life_runner.max_neighbors_to_be_born]
+                    cmp bl, [rdi + life_runner.max_neighbors_to_be_born]
                     jg unset_cell
                     jmp set_cell
 
                 set_cell:
                     mov rdi, new_field
-                    mov rsi, [rbp-64]
-                    mov rdx, [rbp-72]
+                    mov rsi, r14
+                    mov rdx, r15
                     mov cl, 1
                     call bit_array2d_set_bit
                     jmp end_setting_cell
                 unset_cell:
                     mov rdi, new_field
-                    mov rsi, [rbp-64]
-                    mov rdx, [rbp-72]
+                    mov rsi, r14
+                    mov rdx, r15
                     mov ecx, 0
                     call bit_array2d_set_bit
                 end_setting_cell:
 
-                add rsp, 24  ; 8*3
-
-                pop rcx  ; deleted [rbp-56]
-                dec rcx
+                dec r13
                 jnz walking_through_columns  ; loop far
-            pop rcx  ; deleted [rbp-48]
-            dec rcx
+            dec r12
             jnz walking_through_lines  ; loop far
+        
+        pop rbx
+        pop r12
+        pop r13
+        pop r14
+        pop r15
         
         mov rdi, runner
         mov rsi, new_field
