@@ -94,7 +94,8 @@ segment .text
         %endmacro
 
         %macro save_bit 1
-            movzx ecx, bh
+            mov cl, bh
+            and ecx, 1
             mov rdi, r14
             call bit_array2d_get_bit
             shl al, %1
@@ -104,7 +105,8 @@ segment .text
         ;-1, -1
         dec esi
         dec edx
-        movzx ecx, bh
+        mov cl, bh
+        and ecx, 1
         mov rdi, r14
         call bit_array2d_get_bit
         mov bl, al  ; bl - result
