@@ -1,6 +1,7 @@
 %include "bit_array2d_include.asm"
 %include "life_runner_include_common.asm"
 
+extern change_cell_state
 
 global life_runner_make_step        ;make one more step
 global life_runner_count_neighbors  ;count neighbors of bit
@@ -183,38 +184,32 @@ segment .text
         push rbp
         mov rbp, rsp
 
-        push rdi  ; [rbp-8] - runner pointer
         mov rcx, [rdi + life_runner.field]
         
-        cmp rcx, [rdi + life_runner.field_1]
-        jne select_1st_field_as_new
-            ; if current field is 1st
-            mov rax, [rdi + life_runner.field_2]
-            jmp end_select_field
-        select_1st_field_as_new:
-            ; if current field is 2nd
-            mov rax, [rdi + life_runner.field_1]
-        end_select_field:
+        mov rdx, [rdi + life_runner.field_1]  ; tmp
+        mov rax, [rdi + life_runner.field_2]
+        cmp rcx, rdx
+        cmovne rax, rdx
 
-        mov rdi, rcx
-        push rdi  ; [rbp-16] - old field
-        mov esi, [rdi + bit_array2d.y_size]
-        push rsi  ; [rbp-24] - Y size
-        mov edi, [rdi + bit_array2d.x_size]
-        push rdi  ; [rbp-32] - X size
-        push rax  ; [rbp-40] - new field
-
-        %define runner    [rbp-8]
-        %define old_field [rbp-16]
-        %define y_size    [rbp-24]
-        %define x_size    [rbp-32]
-        %define new_field [rbp-40]
+        push rcx  ; [rbp-8] - old field
+        mov esi, [rcx + bit_array2d.y_size]
+        push rsi  ; [rbp-16] - Y size
+        mov ecx, [rcx + bit_array2d.x_size]
+        push rcx  ; [rbp-24] - X size
+        push rax  ; [rbp-32] - new field
 
         push r15
         push r14
         push r13
         push r12
         push rbx
+        mov rbx, rdi  ; rbx - runner pointer
+
+        %define runner    rbx
+        %define old_field [rbp-8]
+        %define y_size    [rbp-16]
+        %define x_size    [rbp-24]
+        %define new_field [rbp-32]
         
         mov r12, y_size  ; r12 = ((length) - (current line (Y coordinate)))
         walking_through_lines:
@@ -228,55 +223,25 @@ segment .text
                 mov r14, rsi  ; r14 - X coordinate
                 mov r15, rdx  ; r15 - Y coordinate
                 call life_runner_count_neighbors
-                mov rbx, rax  ; rbx - neighbors
-                mov rdx, r15
-                mov rsi, r14
-                mov rdi, old_field
-                call bit_array2d_get_bit
-                
-                cmp eax, 0
-                je empty_cell
-                    mov rdi, runner
-                    cmp bl, [rdi + life_runner.min_neighbors_to_exist]
-                    jl unset_cell
-                    cmp bl, [rdi + life_runner.max_neighbors_to_exist]
-                    jg unset_cell
-                    jmp set_cell
-                empty_cell:
-                    mov rdi, runner
-                    cmp bl, [rdi + life_runner.min_neighbors_to_be_born]
-                    jl unset_cell
-                    cmp bl, [rdi + life_runner.max_neighbors_to_be_born]
-                    jg unset_cell
-                    jmp set_cell
-
-                set_cell:
-                    mov rdi, new_field
-                    mov rsi, r14
-                    mov rdx, r15
-                    mov cl, 1
-                    call bit_array2d_set_bit
-                    jmp end_setting_cell
-                unset_cell:
-                    mov rdi, new_field
-                    mov rsi, r14
-                    mov rdx, r15
-                    mov ecx, 0
-                    call bit_array2d_set_bit
-                end_setting_cell:
+                mov rsi, rax
+                mov rdi, runner
+                mov rdx, r14
+                mov rcx, r15
+                mov r8, new_field
+                call change_cell_state
 
                 dec r13
                 jnz walking_through_columns  ; loop far
             dec r12
             jnz walking_through_lines  ; loop far
         
+        mov rdi, runner
         pop rbx
         pop r12
         pop r13
         pop r14
         pop r15
         
-        mov rdi, runner
         mov rsi, new_field
         mov [rdi + life_runner.field], rsi
         

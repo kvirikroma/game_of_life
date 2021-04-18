@@ -153,19 +153,23 @@ segment .text
         ; param rdi - bit_array2d*
         ; param rsi - coordinate by X axis (in bits)
         ; param rdx - coordinate by Y axis (in bits)
-        ; param rcx - disable cycle adressing
+        ; param rcx - disable cyclic adressing
         ; returns 0 or 1 (bit value)
+        mov eax, 1
+        mov r8d, 0
         cmp rcx, 0
-        je enabled_cycle_addressing
+        je enabled_cyclic_addressing
             cmp esi, 0
-            jl return_0
+            cmovl eax, r8d
             cmp edx, 0
-            jl return_0
+            cmovl eax, r8d
             cmp esi, [rdi + bit_array2d.x_size]
-            jnl return_0
+            cmovnl eax, r8d
             cmp edx, [rdi + bit_array2d.y_size]
-            jnl return_0
-        enabled_cycle_addressing:
+            cmovnl eax, r8d
+            cmp eax, 0
+            je bagb_end
+        enabled_cyclic_addressing:
 
         push rdi
         call bit_array2d_coordinates_to_index
@@ -174,11 +178,7 @@ segment .text
         mov rsi, rax
         call bit_field_get_bit
 
-        jmp end_return
-        return_0:
-            xor eax, eax
-        end_return:
-
+        bagb_end:
         ret
 
     bit_array2d_set_bit:
@@ -186,10 +186,9 @@ segment .text
         ; param rsi - coordinate by X axis (in bits)
         ; param rdx - coordinate by Y axis (in bits)
         ; param rcx - value (0 or 1), every non-0 value will be accepted as 1
+        mov r8d, 1
         cmp rcx, 0
-        je sb_already_bool
-            mov ecx, 1
-        sb_already_bool:
+        cmovne ecx, r8d
 
         push rdi
         push rcx
