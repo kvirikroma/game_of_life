@@ -10,7 +10,7 @@ global life_runner_delete           ;free the life runner's parts that are alloc
 
 
 segment .data
-    popcnt_allowed db 0
+    popcnt_executor dq 1
 
 
 segment .text
@@ -52,7 +52,11 @@ segment .text
         pop rbx
         shr rcx, 23
         and cl, 1
-        mov [popcnt_allowed], cl
+        mov rax, have_popcnt
+        mov rdx, not_have_popcnt
+        cmp cl, 0
+        cmove rax, rdx
+        mov [popcnt_executor], rax
 
         leave
         ret
@@ -83,11 +87,14 @@ segment .text
         push r13
         push r12
         push rbx
-        mov r15, rdi  ; r15 - runner
-        mov r14, [r15 + life_runner.field]  ; r15 - field
+        push rdi  ; [rsp] - runner
+        mov r14, [rdi + life_runner.field]  ; r14 - field
         mov r12, rsi  ; r12 - X
         mov r13, rdx  ; r13 - Y 
-        mov bh, [rdi + life_runner.disable_cyclic_adressing]  ; bh - disable_cyclic_adressing
+        mov rax, bit_array2d_get_bit
+        mov r15, bit_array2d_get_bit_uncycled
+        cmp byte [rdi + life_runner.disable_cyclic_adressing], 0
+        cmove r15, rax  ; r15 - bit getter
 
         %macro reload_variables 0
             mov rsi, r12
@@ -95,10 +102,8 @@ segment .text
         %endmacro
 
         %macro save_bit 1
-            mov cl, bh
-            and ecx, 1
             mov rdi, r14
-            call bit_array2d_get_bit
+            call r15
             shl al, %1
             or bl, al
         %endmacro
@@ -109,7 +114,7 @@ segment .text
         mov cl, bh
         and ecx, 1
         mov rdi, r14
-        call bit_array2d_get_bit
+        call r15
         mov bl, al  ; bl - result
 
         ;0, -1
@@ -152,11 +157,12 @@ segment .text
 
 
         ;get number of neighbors from mask
+        pop r15
         movzx edx, bl
         and dl, [r15 + life_runner.neighbors_that_matter]
         
-        cmp byte [popcnt_allowed], 1
-        jne not_have_popcnt
+        jmp [popcnt_executor]
+        have_popcnt:
             popcnt eax, edx
             jmp lrcn_end
         not_have_popcnt:

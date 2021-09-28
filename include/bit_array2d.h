@@ -26,7 +26,10 @@ extern void bit_array2d_delete(bit_array2d* self);
 extern uint32_t bit_array2d_coordinates_to_index(const bit_array2d* self, int32_t x, int32_t y);
 
 // Returns value of bit by its coordinates
-extern bool bit_array2d_get_bit(const bit_array2d* self, int32_t x, int32_t y, bool disable_cycle_adressing);
+extern bool bit_array2d_get_bit(const bit_array2d* self, int32_t x, int32_t y);
+
+// Returns value of bit by its coordinates
+extern bool bit_array2d_get_bit_uncycled(const bit_array2d* self, int32_t x, int32_t y);
 
 // Sets bit value by its coordinates
 // Returns 1 on success or 0 on error

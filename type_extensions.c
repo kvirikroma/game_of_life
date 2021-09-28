@@ -21,7 +21,7 @@ void life_runner_move_game(life_runner* self, direction move_direction, uint32_t
     {
         for (uint32_t x = 0; x < self->field->x_size; x++)
         {
-            if (bit_array2d_get_bit((bit_array2d*)self->field, x, y, 0))
+            if (bit_array2d_get_bit((bit_array2d*)self->field, x, y))
             {
                 switch (move_direction)
                 {
@@ -192,7 +192,7 @@ void life_runner_snapshot_delete(life_runner_snapshot* snapshot)
 
 void change_cell_state(life_runner* runner, uint8_t neighbors, uint32_t x, uint32_t y, bit_array2d* new_field)
 {
-    bool current_bit = bit_array2d_get_bit(runner->field, x, y, false);
+    bool current_bit = bit_array2d_get_bit(runner->field, x, y);
     bool value = (
         (
             current_bit &&

@@ -8,6 +8,7 @@ extern check_pointer_after_malloc
 global bit_array2d_init     ; initializes array of needed size in memory
 global bit_array2d_delete   ; deletes an bit_array2d* (param rdi - bit_array2d* to delete)
 global bit_array2d_get_bit  ; returns value of bit by its coordinates
+global bit_array2d_get_bit_uncycled ; like bit_array2d_get_bit bun without cyclic addressing
 global bit_array2d_set_bit  ; sets bit value by its coordinates
 global bit_array2d_resize   ; change size of bit_array2d (frees old and returns new one)
 global bit_array2d_copy_content ; copy bits from one array to another with an offset
@@ -153,24 +154,7 @@ segment .text
         ; param rdi - bit_array2d*
         ; param rsi - coordinate by X axis (in bits)
         ; param rdx - coordinate by Y axis (in bits)
-        ; param rcx - disable cyclic adressing
         ; returns 0 or 1 (bit value)
-        mov eax, 1
-        mov r8d, 0
-        cmp rcx, 0
-        je enabled_cyclic_addressing
-            cmp esi, 0
-            cmovl eax, r8d
-            cmp edx, 0
-            cmovl eax, r8d
-            cmp esi, [rdi + bit_array2d.x_size]
-            cmovnl eax, r8d
-            cmp edx, [rdi + bit_array2d.y_size]
-            cmovnl eax, r8d
-            cmp eax, 0
-            je bagb_end
-        enabled_cyclic_addressing:
-
         push rdi
         call bit_array2d_coordinates_to_index
         pop rdi
@@ -179,6 +163,34 @@ segment .text
         call bit_field_get_bit
 
         bagb_end:
+        ret
+
+    bit_array2d_get_bit_uncycled:
+        ; param rdi - bit_array2d*
+        ; param rsi - coordinate by X axis (in bits)
+        ; param rdx - coordinate by Y axis (in bits)
+        ; returns 0 or 1 (bit value)
+        mov eax, 1
+        mov r8d, 0
+        cmp esi, 0
+        cmovl eax, r8d
+        cmp edx, 0
+        cmovl eax, r8d
+        cmp esi, [rdi + bit_array2d.x_size]
+        cmovnl eax, r8d
+        cmp edx, [rdi + bit_array2d.y_size]
+        cmovnl eax, r8d
+        cmp eax, 0
+        je bagbu_end
+
+        push rdi
+        call bit_array2d_coordinates_to_index
+        pop rdi
+        add rdi, bit_array2d.data
+        mov rsi, rax
+        call bit_field_get_bit
+
+        bagbu_end:
         ret
 
     bit_array2d_set_bit:

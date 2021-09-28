@@ -142,7 +142,7 @@ void life_drawer_redraw(const life_drawer* self)
             bit_to_use.x = (uint32_t)round(self->zoom_size_ratio_x * x);
             bit_to_use.y = (uint32_t)round(self->zoom_size_ratio_y * y);
             uint32_t color = 0;
-            if (bit_array2d_get_bit(self->game.field, bit_to_use.x, bit_to_use.y, 0))
+            if (bit_array2d_get_bit(self->game.field, bit_to_use.x, bit_to_use.y))
             {
                 color = 0xFFFFFFFF;
             }
