@@ -111,8 +111,6 @@ segment .text
         ;-1, -1
         dec esi
         dec edx
-        mov cl, bh
-        and ecx, 1
         mov rdi, r14
         call r15
         mov bl, al  ; bl - result
@@ -157,7 +155,7 @@ segment .text
 
 
         ;get number of neighbors from mask
-        pop r15
+        pop r15  ; runner deleted from stack
         movzx edx, bl
         and dl, [r15 + life_runner.neighbors_that_matter]
         
