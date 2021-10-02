@@ -108,17 +108,15 @@ segment .text
         ; param rdi - bit_array2d*
         ; param rsi - coordinate by X axis (in bits)
         ; param rdx - coordinate by Y axis (in bits)
-        ; returns index in bit field (it loops on overflow)
+        ; returns index in bit field (cyclic indexing)
         mov r9d, esi
-        cmp r9d, 0
-        jnl x_nl_than_zero_1
-            neg esi
-        x_nl_than_zero_1:
+        neg r9d
+        cmp esi, 0
+        cmovl esi, r9d
         mov r10d, edx
-        cmp r10d, 0
-        jnl y_nl_than_zero_1
-            neg edx
-        y_nl_than_zero_1:
+        neg r10d
+        cmp edx, 0
+        cmovl edx, r10d
 
         mov ecx, edx
         mov eax, esi
@@ -132,16 +130,15 @@ segment .text
         xor edx, edx
         div ecx  ; edx - Y
 
+        xchg edx, ecx
+        sub edx, ecx
         cmp r10d, 0
-        jnl y_nl_than_zero_2
-            xchg edx, ecx
-            sub edx, ecx
-        y_nl_than_zero_2:
+        cmovng edx, ecx
+
+        xchg r8d, esi
+        sub r8d, esi
         cmp r9d, 0
-        jnl x_nl_than_zero_2
-            xchg r8d, esi
-            sub r8d, esi
-        x_nl_than_zero_2:
+        cmovng r8d, esi
 
         mov eax, edx
         mul dword [rdi + bit_array2d.x_size]
@@ -161,8 +158,6 @@ segment .text
         add rdi, bit_array2d.data
         mov rsi, rax
         call bit_field_get_bit
-
-        bagb_end:
         ret
 
     bit_array2d_get_bit_uncycled:
@@ -182,14 +177,12 @@ segment .text
         cmovnl eax, r8d
         cmp eax, 0
         je bagbu_end
-
-        push rdi
-        call bit_array2d_coordinates_to_index
-        pop rdi
-        add rdi, bit_array2d.data
-        mov rsi, rax
-        call bit_field_get_bit
-
+            push rdi
+            call bit_array2d_coordinates_to_index
+            pop rdi
+            add rdi, bit_array2d.data
+            mov rsi, rax
+            call bit_field_get_bit
         bagbu_end:
         ret
 
