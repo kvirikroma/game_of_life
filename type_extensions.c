@@ -189,20 +189,3 @@ void life_runner_snapshot_delete(life_runner_snapshot* snapshot)
     free(snapshot->data);
     *snapshot = (life_runner_snapshot){0, 0};
 }
-
-void change_cell_state(life_runner* runner, uint8_t neighbors, uint32_t x, uint32_t y, bit_array2d* new_field)
-{
-    bool current_bit = bit_array2d_get_bit(runner->field, x, y);
-    bool value = (
-        (
-            current_bit &&
-            neighbors >= runner->min_neighbors_to_exist &&
-            neighbors <= runner->max_neighbors_to_exist
-        ) || (
-            !current_bit &&
-            neighbors >= runner->min_neighbors_to_be_born &&
-            neighbors <= runner->max_neighbors_to_be_born
-        )
-    );
-    bit_array2d_set_bit(new_field, x, y, value);
-}

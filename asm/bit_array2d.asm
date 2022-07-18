@@ -161,8 +161,6 @@ segment .text
         add rdi, bit_array2d.data
         mov rsi, rax
         call bit_field_get_bit
-
-        bagb_end:
         ret
 
     bit_array2d_get_bit_uncycled:

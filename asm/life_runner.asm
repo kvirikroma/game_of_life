@@ -96,11 +96,6 @@ segment .text
         cmp byte [rdi + life_runner.disable_cyclic_adressing], 0
         cmove r15, rax  ; r15 - bit getter
 
-        %macro reload_variables 0
-            mov rsi, r12
-            mov rdx, r13
-        %endmacro
-
         %macro save_bit 1
             mov rdi, r14
             call r15
@@ -116,41 +111,38 @@ segment .text
         mov bl, al  ; bl - result
 
         ;0, -1
-        reload_variables
-        dec edx
+        mov rsi, r12
+        lea rdx, [r13 - 1]
         save_bit 1
 
         ;+1, -1
-        reload_variables
-        inc esi
-        dec edx
+        lea rsi, [r12 + 1]
+        lea rdx, [r13 - 1]
         save_bit 2
 
         ;-1, 0
-        reload_variables
-        dec esi
+        lea rsi, [r12 - 1]
+        mov rdx, r13
         save_bit 3
 
         ;+1, 0
-        reload_variables
-        inc esi
+        lea rsi, [r12 + 1]
+        mov rdx, r13
         save_bit 4
 
         ;-1, +1
-        reload_variables
-        dec esi
-        inc edx
+        lea rsi, [r12 - 1]
+        lea rdx, [r13 + 1]
         save_bit 5
 
         ;0, +1
-        reload_variables
-        inc edx
+        mov rsi, r12
+        lea rdx, [r13 + 1]
         save_bit 6
 
         ;+1, +1
-        reload_variables
-        inc esi
-        inc edx
+        lea rsi, [r12 + 1]
+        lea rdx, [r13 + 1]
         save_bit 7
 
 
@@ -227,12 +219,29 @@ segment .text
                 mov r14, rsi  ; r14 - X coordinate
                 mov r15, rdx  ; r15 - Y coordinate
                 call life_runner_count_neighbors
-                mov rsi, rax
-                mov rdi, runner
-                mov rdx, r14
-                mov rcx, r15
-                mov r8, new_field
-                call change_cell_state
+
+                push rax
+                mov rsi, r14
+                mov rdx, r15
+                mov rdi, old_field
+                call bit_array2d_get_bit
+                mov rdi, 0
+                mov rcx, rax
+                pop rdx  ; rdx - neighbors
+                xor rcx, 1
+                cmp dl, [runner + life_runner.min_neighbors_to_exist]
+                cmovl rax, rdi
+                cmp dl, [runner + life_runner.max_neighbors_to_exist]
+                cmovg rax, rdi
+                cmp dl, [runner + life_runner.min_neighbors_to_be_born]
+                cmovl rcx, rdi
+                cmp dl, [runner + life_runner.max_neighbors_to_be_born]
+                cmovg rcx, rdi
+                or rcx, rax
+                mov rsi, r14
+                mov rdx, r15
+                mov rdi, new_field
+                call bit_array2d_set_bit
 
                 dec r13
                 jnz walking_through_columns  ; loop far
