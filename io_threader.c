@@ -70,20 +70,18 @@ void* input_thread_function(void* parameters)
             if (draw_line)
             {
                 life_drawer_draw_line(&self->drawer, last_mouse_position, new_mouse_position, self->input.lmb_pressed);
-                self->redrawed = false;
             }
             else
             {
                 life_drawer_change_cell(&self->drawer, new_mouse_position.x, new_mouse_position.y, self->input.lmb_pressed);
-                self->redrawed = false;
                 draw_line = true;
             }
+            self->redrawed = false;
             
             new_move_time = get_current_millisecond();
-            if ((new_move_time - last_move_time) > 20)
+            if ((new_move_time - last_move_time) > 1)
             {
                 event_listener_apply_movement(&self->input, self, false);
-                self->redrawed = false;
                 last_move_time = new_move_time;
             }
 
@@ -94,13 +92,13 @@ void* input_thread_function(void* parameters)
         else
         {
             new_move_time = get_current_millisecond();
-            if ((new_move_time - last_move_time) > 30)
+            if ((new_move_time - last_move_time) > 25)
             {
                 event_listener_apply_movement(&self->input, self, true);
                 last_move_time = new_move_time;
             }
             draw_line = false;
-            sleep_ms(0.5);
+            sleep_ms(0.1);
         }
         sleep_ms(0.01);
     }
@@ -122,25 +120,15 @@ void* output_thread_function(void* parameters)
     {
         if (!self->redrawed)
         {
-            if (!pthread_mutex_trylock(&self->drawer_lock))
-            {
-                life_drawer_redraw(&self->drawer);
-                self->redrawed = true;
-                io_threader_unlock_drawer(self);
-            }
-            else
-            {
-                sleep_ms(1);
-            }
-        }
-        else
-        {
-            sleep_ms(1);
+            io_threader_lock_drawer(self);
+            life_drawer_redraw(&self->drawer);
+            self->redrawed = true;
+            io_threader_unlock_drawer(self);
         }
 
         life_drawer_draw_zoom_layout(&self->drawer);
         SDL_UpdateWindowSurface(self->drawer.window);
-        sleep_ms(0.5);
+        sleep_ms(1);
     }
     pthread_join(self->input_thread, NULL);
     life_drawer_delete(&self->drawer);

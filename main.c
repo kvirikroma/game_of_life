@@ -21,7 +21,7 @@ static void signal_handler(int code)
 
 int main()
 {
-    step_delay = 120;
+    step_delay = 128;
     int64_t msec_total = 0;
 
     io_threader_init(&threader, 1600, 900, 512, 288);
@@ -45,6 +45,7 @@ int main()
         {
             if (!threader.input.pause)
             {
+                while (!threader.redrawed);
                 io_threader_lock_drawer(&threader);
                 if ((((double)actual_step_delay * 2.8) / 2) > msec_total)
                 {
@@ -67,11 +68,6 @@ int main()
                             break;
                         }
                     }
-                }
-                if (!threader.redrawed)
-                {
-                    life_drawer_redraw(&threader.drawer);
-                    threader.redrawed = true;
                 }
                 io_threader_unlock_drawer(&threader);
             }

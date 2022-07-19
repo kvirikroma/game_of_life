@@ -42,15 +42,14 @@ segment .text
         mov cl, sil
         shr r8b, cl
 
+        mov r9b, r8b
+        not r9b
+        mov cl, [rdi + rax]
+        or r8b, cl
+        and cl, r9b
         cmp rdx, 0
-        je bfsb_zero
-            or [rdi + rax], r8b
-            jmp bfsb_end
-        bfsb_zero:
-            not r8b
-            and [rdi + rax], r8b
-        bfsb_end:
-
+        cmovne rcx, r8
+        mov [rdi + rax], cl
         ret
     
     bit_array2d_erase:
@@ -111,14 +110,14 @@ segment .text
         ; returns index in bit field (it loops on overflow)
         mov r9d, esi
         cmp r9d, 0
-        jnl x_nl_than_zero_1
+        jnl .x_nl_than_zero_1
             neg esi
-        x_nl_than_zero_1:
+        .x_nl_than_zero_1:
         mov r10d, edx
         cmp r10d, 0
-        jnl y_nl_than_zero_1
+        jnl .y_nl_than_zero_1
             neg edx
-        y_nl_than_zero_1:
+        .y_nl_than_zero_1:
 
         mov ecx, edx
         mov eax, esi
@@ -133,15 +132,15 @@ segment .text
         div ecx  ; edx - Y
 
         cmp r10d, 0
-        jnl y_nl_than_zero_2
-            xchg edx, ecx
+        jnl .y_nl_than_zero_2
             sub edx, ecx
-        y_nl_than_zero_2:
+            neg edx
+        .y_nl_than_zero_2:
         cmp r9d, 0
-        jnl x_nl_than_zero_2
-            xchg r8d, esi
+        jnl .x_nl_than_zero_2
             sub r8d, esi
-        x_nl_than_zero_2:
+            neg r8d
+        .x_nl_than_zero_2:
 
         mov eax, edx
         mul dword [rdi + bit_array2d.x_size]
@@ -179,7 +178,7 @@ segment .text
         cmp edx, [rdi + bit_array2d.y_size]
         cmovnl eax, r8d
         cmp eax, 0
-        je bagbu_end
+        je .end
 
         push rdi
         call bit_array2d_coordinates_to_index
@@ -188,7 +187,7 @@ segment .text
         mov rsi, rax
         call bit_field_get_bit
 
-        bagbu_end:
+        .end:
         ret
 
     bit_array2d_set_bit:
@@ -308,10 +307,10 @@ segment .text
         
         ; TODO
 
-        ise_return_0:
+        .return_0:
             xor eax, eax
-            jmp ise_return_end
-        ise_return_1:
+            jmp .return_end
+        .return_1:
             mov eax, 1
-        ise_return_end:
+        .return_end:
         ret
