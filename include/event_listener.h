@@ -9,12 +9,12 @@ typedef struct
     key_handler keyhandler;
     SDL_Event event;
     bool run;
-    bool pause;
-    bool lmb_pressed;
-    bool rmb_pressed;
     uint8_t speed;
     bool moved_once;
     direction movement;
+    bool pause;
+    bool lmb_pressed;
+    bool rmb_pressed;
     bool move;
     bool zoom_in;
     bool zoom_out;

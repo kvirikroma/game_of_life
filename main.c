@@ -21,7 +21,7 @@ static void signal_handler(int code)
 
 int main()
 {
-    step_delay = 128;
+    step_delay = 180;
     int64_t msec_total = 0;
 
     io_threader_init(&threader, 1600, 900, 512, 288);
@@ -47,7 +47,7 @@ int main()
             {
                 while (!threader.redrawed);
                 io_threader_lock_drawer(&threader);
-                if ((((double)actual_step_delay * 2.8) / 2) > msec_total)
+                if (((double)actual_step_delay * 1.4) > msec_total)
                 {
                     life_runner_make_step(&threader.drawer.game);
                     threader.redrawed = false;
@@ -80,11 +80,10 @@ int main()
             {
                 sleep_ms(((int64_t)actual_step_delay - msec_total) / (1 << (threader.input.speed - 1)));
             }
-            else
-            {
-                sleep_ms(2);
-            }
-            
+        }
+        if (threader.input.pause && !(threader.input.lmb_pressed || threader.input.rmb_pressed) && !threader.input.move)
+        {
+            sleep_ms(200);
         }
     }
 

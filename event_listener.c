@@ -165,7 +165,7 @@ void event_listener_listen(event_listener* self, void* threader)
 }
 
 
-static void scale_zoom(event_listener* self, io_threader* threader)
+static inline void scale_zoom(event_listener* self, io_threader* threader)
 {
     if (!threader->mouse_inited)
     {
@@ -215,6 +215,7 @@ void event_listener_apply_movement(event_listener* self, void* threader, bool lo
                 drawer_locked = true;
             }
             life_runner_move_game(&iothreader->drawer.game, self->movement, distance);
+            iothreader->redrawed = false;
         }
         self->moved_once = true;
     }
@@ -228,7 +229,6 @@ void event_listener_apply_movement(event_listener* self, void* threader, bool lo
         drawer_locked = true;
     }
     scale_zoom(self, iothreader);
-    iothreader->redrawed = false;
     if (lock_drawer && drawer_locked)
     {
         io_threader_unlock_drawer(iothreader);

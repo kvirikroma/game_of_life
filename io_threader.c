@@ -100,7 +100,7 @@ void* input_thread_function(void* parameters)
             draw_line = false;
             sleep_ms(0.1);
         }
-        sleep_ms(0.01);
+        sleep_ms(2);
     }
     free(parameters);
     return 0;
@@ -115,6 +115,7 @@ void* output_thread_function(void* parameters)
     input_params->threader = self;
     life_drawer_init(&self->drawer, params->window_size.x, params->window_size.y, params->game_field_size.x, params->game_field_size.y);
     pthread_create((pthread_t*)&self->input_thread, NULL, input_thread_function, (void*)input_params);
+    int64_t last_activity = get_current_millisecond();
 
     while (!self->stop_flag)
     {
@@ -124,11 +125,16 @@ void* output_thread_function(void* parameters)
             life_drawer_redraw(&self->drawer);
             self->redrawed = true;
             io_threader_unlock_drawer(self);
+            last_activity = get_current_millisecond();
         }
 
         life_drawer_draw_zoom_layout(&self->drawer);
         SDL_UpdateWindowSurface(self->drawer.window);
-        sleep_ms(1);
+        if ((get_current_millisecond() - last_activity) > 500)
+        {
+            sleep_ms(120);
+        }
+        sleep_ms(2);
     }
     pthread_join(self->input_thread, NULL);
     life_drawer_delete(&self->drawer);
