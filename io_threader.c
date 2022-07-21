@@ -60,16 +60,28 @@ void* input_thread_function(void* parameters)
             {
                 self->mouse_inited = true;
             }
+            else
+            {
+                continue;
+            }
         }
-        if (self->mouse_inited && (self->input.lmb_pressed ^ self->input.rmb_pressed))
+        if ((self->input.lmb_pressed ^ self->input.rmb_pressed) || self->input.mmb_pressed)
         {
             coordinates new_mouse_position;
             SDL_GetMouseState((int*)&new_mouse_position.x, (int*)&new_mouse_position.y);
 
             io_threader_lock_drawer(self);
-            if (draw_line)
+            if (draw_line && !self->input.mmb_pressed)
             {
                 life_drawer_draw_line(&self->drawer, last_mouse_position, new_mouse_position, self->input.lmb_pressed);
+            }
+            else if (self->input.mmb_pressed)
+            {
+                life_runner_move_game_by_coordinates(
+                    &self->drawer.game,
+                    round((double)(new_mouse_position.x - last_mouse_position.x) * self->drawer.zoom_size_ratio_x),
+                    round((double)(new_mouse_position.y - last_mouse_position.y) * self->drawer.zoom_size_ratio_y)
+                );
             }
             else
             {
@@ -79,7 +91,7 @@ void* input_thread_function(void* parameters)
             self->redrawed = false;
             
             new_move_time = get_current_millisecond();
-            if ((new_move_time - last_move_time) > 1)
+            if (((new_move_time - last_move_time) > 1) && !self->input.mmb_pressed)
             {
                 event_listener_apply_movement(&self->input, self, false);
                 last_move_time = new_move_time;
@@ -100,7 +112,7 @@ void* input_thread_function(void* parameters)
             draw_line = false;
             sleep_ms(0.1);
         }
-        sleep_ms(2);
+        sleep_ms(0.2);
     }
     free(parameters);
     return 0;
@@ -119,20 +131,26 @@ void* output_thread_function(void* parameters)
 
     while (!self->stop_flag)
     {
-        if (!self->redrawed)
+        
+        bool was_redrawed_before = self->redrawed;
+        if (!was_redrawed_before)
         {
             io_threader_lock_drawer(self);
             life_drawer_redraw(&self->drawer);
+            life_drawer_draw_zoom_layout(&self->drawer);
             self->redrawed = true;
             io_threader_unlock_drawer(self);
             last_activity = get_current_millisecond();
         }
-
-        life_drawer_draw_zoom_layout(&self->drawer);
-        SDL_UpdateWindowSurface(self->drawer.window);
+        if (!was_redrawed_before)
+        {
+            SDL_UpdateWindowSurface(self->drawer.window);
+        }
         if ((get_current_millisecond() - last_activity) > 500)
         {
-            sleep_ms(120);
+            sleep_ms(55);
+            SDL_UpdateWindowSurface(self->drawer.window);
+            sleep_ms(55);
         }
         sleep_ms(2);
     }

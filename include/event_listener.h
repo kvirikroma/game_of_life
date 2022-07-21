@@ -12,6 +12,7 @@ typedef struct
     uint8_t speed;
     bool moved_once;
     direction movement;
+    bool mmb_pressed;
     bool pause;
     bool lmb_pressed;
     bool rmb_pressed;

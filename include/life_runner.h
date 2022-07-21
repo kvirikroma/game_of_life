@@ -66,6 +66,9 @@ extern uint8_t life_runner_count_neighbors(life_runner* self, int32_t x, int32_t
 // Move the game in window (distance is in cells)
 void life_runner_move_game(life_runner* self, direction move_direction, uint32_t distance);
 
+// Move the game by x and y offsets
+void life_runner_move_game_by_coordinates(life_runner* self, int32_t x_offset, int32_t y_offset);
+
 // Make snapshot of life runner state
 life_runner_snapshot life_runner_to_snapshot(life_runner* self);
 

@@ -10,6 +10,7 @@ void event_listener_init(event_listener* self)
 {
     self->run = true;
     self->pause = true;
+    self->mmb_pressed = false;
     self->lmb_pressed = false;
     self->rmb_pressed = false;
     self->moved_once = false;
@@ -52,6 +53,11 @@ void event_listener_listen(event_listener* self, void* threader)
                 {
                     self->rmb_pressed = true;
                 }
+                if (self->event.button.button == SDL_BUTTON_MIDDLE)
+                {
+                    self->mmb_pressed = true;
+                    iothreader->mouse_inited = false;
+                }
                 break;
             }
             case SDL_MOUSEBUTTONUP:
@@ -63,6 +69,10 @@ void event_listener_listen(event_listener* self, void* threader)
                 if (self->event.button.button == SDL_BUTTON_RIGHT)
                 {
                     self->rmb_pressed = false;
+                }
+                if (self->event.button.button == SDL_BUTTON_MIDDLE)
+                {
+                    self->mmb_pressed = false;
                 }
                 break;
             }
@@ -76,6 +86,7 @@ void event_listener_listen(event_listener* self, void* threader)
                         self->move = false;
                         self->pause = true;
                         self->moved_once = true;
+                        self->mmb_pressed = false;
                         self->lmb_pressed = false;
                         self->rmb_pressed = false;
 

@@ -17,11 +17,13 @@ MOVEMENT:
     left arrow - move left across the field
     shift (while prressed) - boosts movement (4 cells at one step)
     alt (while pressed) - move step-by-step
+    mmb - move the field to a certain position
 </pre>
 <b>Mouse:</b><br>
 <pre>
 lmb - add a cell
 rmb - remove a cell
+mmb - move a field
 mwheel up - zoom in
 mwheel down - zoom out
 </pre>

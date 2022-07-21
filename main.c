@@ -41,7 +41,7 @@ int main()
             actual_step_delay /= threader.input.speed;
         }
         
-        if (!threader.input.lmb_pressed && !threader.input.rmb_pressed)
+        if (!threader.input.lmb_pressed && !threader.input.rmb_pressed && !threader.input.mmb_pressed)
         {
             if (!threader.input.pause)
             {
@@ -81,8 +81,10 @@ int main()
                 sleep_ms(((int64_t)actual_step_delay - msec_total) / (1 << (threader.input.speed - 1)));
             }
         }
-        if (threader.input.pause && !(threader.input.lmb_pressed || threader.input.rmb_pressed) && !threader.input.move)
-        {
+        if (
+            threader.input.pause && !threader.input.move &&
+            !(threader.input.lmb_pressed || threader.input.rmb_pressed || threader.input.mmb_pressed)
+        ){
             sleep_ms(200);
         }
     }
