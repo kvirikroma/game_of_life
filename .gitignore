@@ -6,3 +6,4 @@ package/usr/sbin
 asm/compiler_symlinks
 .kdbg*
 saved_game*
+callgrind.out*

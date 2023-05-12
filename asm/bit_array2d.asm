@@ -109,23 +109,19 @@ segment .text
         ; param rdx - coordinate by Y axis (in bits)
         ; returns index in bit field (it loops on overflow)
         mov r9d, esi
-        cmp r9d, 0
-        jnl .x_nl_than_zero_1
-            neg esi
-        .x_nl_than_zero_1:
         mov r10d, edx
-        cmp r10d, 0
-        jnl .y_nl_than_zero_1
-            neg edx
-        .y_nl_than_zero_1:
 
-        mov ecx, edx
-        mov eax, esi
+        mov eax, r9d
+        neg eax
+        cmovng eax, r9d
         mov esi, [rdi + bit_array2d.x_size]
         xor edx, edx
         div esi
         mov r8d, edx  ; r8d - X
 
+        mov ecx, r10d
+        neg ecx
+        cmovng ecx, r10d
         mov eax, ecx
         mov ecx, [rdi + bit_array2d.y_size]
         xor edx, edx
@@ -143,7 +139,7 @@ segment .text
         .x_nl_than_zero_2:
 
         mov eax, edx
-        mul dword [rdi + bit_array2d.x_size]
+        mul esi
         shl rdx, 32
         or rax, rdx
         add rax, r8
