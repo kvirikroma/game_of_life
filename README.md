@@ -8,7 +8,7 @@ c - clear the game field
 space - pause
 s - save game to "saved_game.life"
 l - load game from "saved_game.life"
-1-9 buttons - change game speed (warning: fps drops and input lags on high speed)
+1-9 buttons - change game speed (fps drops and input lags on high speed)
 0 button - make game do a single step and pause (works even when paused)
 MOVEMENT:
     up arrow - move up across the field
@@ -21,20 +21,19 @@ MOVEMENT:
 </pre>
 <b>Mouse:</b><br>
 <pre>
-lmb - add a cell
-rmb - remove a cell
-mmb - move a field
-mwheel up - zoom in
-mwheel down - zoom out
+left mouse button - add a cell
+right mouse button - remove a cell
+middle mouse button (hold) - move a field
+mouse wheel up - zoom in
+mouse wheel down - zoom out
 </pre>
 
-<b>Most important bugs now:</b><br>
+<b>Most important issues now:</b><br>
 <pre>
-1. Cannot resize window
-2. Cannot resize game field
-3. Cells may be not square if, say, window is 4:3 and game field is 16:9
-4. Speed changing is too simple (no choice to change step delay or steps per iteration)
-5. There's no intuitive GUI
-6. No ability to rollback last steps of game
-7. Life runner calculates new step too slow (and logic works on single thread)
+1. Cannot resize both window and a game field
+2. Cells may be not square if, say, window is 4:3 and game field is 16:9
+3. Speed changing is too primitive: the choice to change step delay or count of steps per iteration is done by the program itself and in fact it's awful
+4. There's no intuitive GUI, just a key bindings
+5. No ability to rollback last steps of game
+6. A new step is calculated too slowly, since it doesn't use Hashlife (and logic works on single thread)
 </pre>
