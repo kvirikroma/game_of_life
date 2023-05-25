@@ -36,7 +36,7 @@ cd ../
 
 if [[ $1 == 'release' ]]; then
     echo "building release"
-    gcc -Wall -m64 -no-pie -o ./game_of_life ./*.c ./asm/*.o -Bstatic -lSDL2 -lm -lpthread -Ofast
+    gcc -Wall -m64 -no-pie -o ./game_of_life ./*.c ./asm/*.o -Bstatic ./static_libs/libSDL2.a -lm -lpthread -Ofast
 else
     gcc -Wall -m64 -no-pie -gdwarf-2 -o ./game_of_life ./*.c ./asm/*.o -lSDL2 -lm -lpthread -Ofast
 fi
