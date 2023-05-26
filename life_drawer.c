@@ -15,8 +15,7 @@ typedef enum
 zoom;
 
 
-// in pixels
-static coordinates get_cell_size(const life_drawer* self)
+coordinates life_drawer_get_cell_size(const life_drawer* self)
 {
     return (coordinates){
         round((double)1 / self->zoom_size_ratio_x),
@@ -129,7 +128,7 @@ void life_drawer_redraw(const life_drawer* self)
                 {
                     continue;
                 }
-                coordinates cell_size = get_cell_size(self);
+                coordinates cell_size = life_drawer_get_cell_size(self);
                 if ((cell_size.x >= GRID_MIN_CELL_SIZE) && (cell_size.x >= GRID_MIN_CELL_SIZE))
                 {
                     if (is_pixel_on_grid(self, (coordinates){x, y}))
@@ -167,7 +166,7 @@ void life_drawer_draw_zoom_layout(const life_drawer* self)
     borders[0].h = borders[2].h = screen_surface->h;
     borders[1].w = borders[3].w = screen_surface->w;
     SDL_FillRects(screen_surface, borders, 4, ZOOM_LAYOUT_COLOR);
-    coordinates cell_size = get_cell_size(self);
+    coordinates cell_size = life_drawer_get_cell_size(self);
     if ((cell_size.x < GRID_MIN_CELL_SIZE) || (cell_size.x < GRID_MIN_CELL_SIZE))
     {
         return;
@@ -207,7 +206,7 @@ void life_drawer_draw_zoom_layout(const life_drawer* self)
 void life_drawer_set_visual_cell(life_drawer* self, uint32_t cell_x, uint32_t cell_y, bool value)
 {
     SDL_Surface* screen_surface = SDL_GetWindowSurface(self->window);
-    coordinates cell_size = get_cell_size(self);
+    coordinates cell_size = life_drawer_get_cell_size(self);
     for (uint32_t y = 0; y < cell_size.y; y++)
     {
         for (uint32_t x = 0; x < cell_size.x; x++)
@@ -339,7 +338,7 @@ static void life_drawer_zoom(life_drawer* self, coordinates mouse, zoom method)
     else
     {
         coordinates window_size = life_drawer_get_window_size(self);
-        coordinates cell_size = get_cell_size(self);
+        coordinates cell_size = life_drawer_get_cell_size(self);
         if ((cell_size.x * 8 >= window_size.x) || (cell_size.y * 8 >= window_size.y))
         {
             return;

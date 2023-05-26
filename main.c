@@ -21,16 +21,16 @@ static void signal_handler(int code)
 
 int main()
 {
-    step_delay = 180;
+    step_delay = 200;
     int64_t msec_total = 0;
 
     io_threader_init(&threader, 1600, 900, 512, 288);
+    signal(SIGINT, signal_handler);
+    signal(SIGTERM, signal_handler);
     while(!threader.threads_started)
     {
         sleep_ms(1);
     }
-    signal(SIGINT, signal_handler);
-    signal(SIGTERM, signal_handler);
     
     while (threader.input.run)
     {
@@ -38,27 +38,29 @@ int main()
         int64_t actual_step_delay = step_delay;
         if (threader.input.speed)
         {
-            actual_step_delay /= threader.input.speed;
+            actual_step_delay /= pow(1.432, threader.input.speed - 1);
         }
         
+        uint32_t steps_count = 1;
         if (!threader.input.lmb_pressed && !threader.input.rmb_pressed && !threader.input.mmb_pressed)
         {
             if (!threader.input.pause)
             {
                 while (!threader.redrawed);
                 io_threader_lock_drawer(&threader);
-                if (((double)actual_step_delay * 1.4) > msec_total)
+                if (actual_step_delay > msec_total)
                 {
                     life_runner_make_step(&threader.drawer.game);
                     threader.redrawed = false;
                 }
                 else
                 {
-                    for (uint8_t step = 0; step < round(pow(1.432, threader.input.speed)); step++)
+                    steps_count = round(pow(1.25, threader.input.speed));
+                    for (uint32_t step = 0; step < steps_count; step++)
                     {
                         life_runner_make_step(&threader.drawer.game);
                         threader.redrawed = false;
-                        if ((step % 6) == 1)
+                        if ((step % 3) == 1)
                         {
                             event_listener_listen(&threader.input, &threader);
                             event_listener_apply_movement(&threader.input, &threader, false);
@@ -75,10 +77,10 @@ int main()
 
         if (!threader.input.move || threader.input.moved_once)
         {
-            msec_total = get_current_millisecond() - start_ms;
-            if (((int64_t)actual_step_delay - msec_total) > 2)
+            msec_total = (get_current_millisecond() - start_ms) / steps_count;
+            if ((actual_step_delay - msec_total) > 2)
             {
-                sleep_ms(((int64_t)actual_step_delay - msec_total) / (1 << (threader.input.speed - 1)));
+                sleep_ms(actual_step_delay - msec_total);
             }
         }
         if (

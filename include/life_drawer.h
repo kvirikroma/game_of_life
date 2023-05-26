@@ -28,6 +28,9 @@ life_drawer;
 // Init the life drawer and the game; open the window
 void life_drawer_init(life_drawer* self, uint32_t pixels_x, uint32_t pixels_y, uint32_t cells_x, uint32_t cells_y);
 
+// returns cell size in pixels
+coordinates life_drawer_get_cell_size(const life_drawer* self);
+
 // Delete the life drawer and the game; close the window
 void life_drawer_delete(life_drawer* self);
 

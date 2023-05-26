@@ -77,10 +77,11 @@ void* input_thread_function(void* parameters)
             }
             else if (self->input.mmb_pressed)
             {
+                coordinates cell_size = life_drawer_get_cell_size(&self->drawer);
                 life_runner_move_game_by_coordinates(
                     &self->drawer.game,
-                    round((double)(new_mouse_position.x - last_mouse_position.x) * self->drawer.zoom_size_ratio_x),
-                    round((double)(new_mouse_position.y - last_mouse_position.y) * self->drawer.zoom_size_ratio_y)
+                    round((double)(new_mouse_position.x / cell_size.x - last_mouse_position.x / cell_size.x)),
+                    round((double)(new_mouse_position.y / cell_size.y - last_mouse_position.y / cell_size.y))
                 );
             }
             else
