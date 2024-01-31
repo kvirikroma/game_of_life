@@ -2,9 +2,10 @@
 
 #include "include/life_drawer.h"
 
-#define ZOOM_BORDERS_SIZE  8
+#define ZOOM_BORDERS_SIZE  6
 #define ZOOM_LAYOUT_COLOR  0x22888888
-#define GRID_MIN_CELL_SIZE 10
+#define GRID_MIN_CELL_SIZE 18
+#define ZOOM_UNIT_SIZE 1.15
 
 
 typedef enum
@@ -332,8 +333,8 @@ static void life_drawer_zoom(life_drawer* self, coordinates mouse, zoom method)
         {
             return;
         }
-        self->zoom_size_ratio_x *= 1.2;
-        self->zoom_size_ratio_y *= 1.2;
+        self->zoom_size_ratio_x *= ZOOM_UNIT_SIZE;
+        self->zoom_size_ratio_y *= ZOOM_UNIT_SIZE;
     }
     else
     {
@@ -343,8 +344,8 @@ static void life_drawer_zoom(life_drawer* self, coordinates mouse, zoom method)
         {
             return;
         }
-        self->zoom_size_ratio_x /= 1.2;
-        self->zoom_size_ratio_y /= 1.2;
+        self->zoom_size_ratio_x /= ZOOM_UNIT_SIZE;
+        self->zoom_size_ratio_y /= ZOOM_UNIT_SIZE;
     }
     coordinates cell_under_mouse_end = get_cell_coordinates(self, mouse);
     int32_t cell_offset_x = cell_under_mouse_end.x - cell_under_mouse_start.x;
