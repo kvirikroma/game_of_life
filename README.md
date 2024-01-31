@@ -32,8 +32,8 @@ mouse wheel down - zoom out
 <pre>
 1. Cannot resize both window and a game field
 2. Cells may be not square if, say, window is 4:3 and game field is 16:9
-3. Speed changing is too primitive: the choice to change step delay or count of steps per iteration is done by the program itself and in fact it's awful
+3. Speed changing is too primitive
 4. There's no intuitive GUI, just a key bindings
-5. No ability to rollback last steps of game
-6. A new step is calculated too slowly, since it doesn't use Hashlife (and logic works on single thread)
+5. No ability to rollback last N steps of game
+6. A new step is calculated too slowly since the app doesn't use Hashlife (and the logic works on a single thread)
 </pre>
