@@ -6,6 +6,7 @@
 #define ZOOM_LAYOUT_COLOR  0x22888888
 #define GRID_MIN_CELL_SIZE 18
 #define ZOOM_UNIT_SIZE 1.15
+#define EPSILON 0.0000001
 
 
 typedef enum
@@ -141,9 +142,8 @@ void life_drawer_init(life_drawer* self, uint32_t pixels_x, uint32_t pixels_y, u
 
 void life_drawer_field_fit(life_drawer* self)
 {
-    SDL_Surface* screen_surface = SDL_GetWindowSurface(self->window);
-    self->size_ratio_x = (double)self->game.field->x_size / (double)screen_surface->w;
-    self->size_ratio_y = (double)self->game.field->y_size / (double)screen_surface->h;
+    self->size_ratio_x = (double)self->game.field->x_size / (double)self->pixels_x;
+    self->size_ratio_y = (double)self->game.field->y_size / (double)self->pixels_y;
     self->zoom_size_ratio_x = self->size_ratio_x;
     self->zoom_size_ratio_y = self->size_ratio_y;
 }
@@ -333,8 +333,8 @@ void life_drawer_draw_line(life_drawer* self, coordinates begin, coordinates end
 bool life_drawer_is_zoomed(const life_drawer* self)
 {
     return (
-        (self->size_ratio_x != self->zoom_size_ratio_x) || 
-        (self->size_ratio_y != self->zoom_size_ratio_y)
+        (self->size_ratio_x - self->zoom_size_ratio_x > EPSILON) || 
+        (self->size_ratio_y - self->zoom_size_ratio_y > EPSILON)
     );
 }
 
@@ -412,19 +412,18 @@ void life_drawer_zoom_out(life_drawer* self, coordinates mouse)
 
 void life_drawer_change_window_size(life_drawer* self, uint32_t pixels_x, uint32_t pixels_y)
 {
-    // double init_x_ratio = self->size_ratio_x;
-    // double init_y_ratio = self->size_ratio_y;
-    // double init_x_zoom_ratio = self->zoom_size_ratio_x;
-    // double init_y_zoom_ratio = self->zoom_size_ratio_y;
+    double init_x_ratio = self->size_ratio_x;
+    double init_y_ratio = self->size_ratio_y;
+    double init_x_zoom_ratio = self->zoom_size_ratio_x;
+    double init_y_zoom_ratio = self->zoom_size_ratio_y;
     coordinates pixels = life_drawer_optimixe_pixels_ratio(self, pixels_x, pixels_y);
-    life_drawer_field_fit(self);
-    // double x_ratio_change = init_x_ratio / self->size_ratio_x;
-    // double y_ratio_change = init_y_ratio / self->size_ratio_y;
-    // self->zoom_size_ratio_x = x_ratio_change / init_x_zoom_ratio;
-    // self->zoom_size_ratio_y = y_ratio_change / init_y_zoom_ratio;
-    // printf("%d, %d\n", pixels.x, pixels.y);
     self->pixels_x = pixels.x;
     self->pixels_y = pixels.y;
+    life_drawer_field_fit(self);
+    double x_ratio_change = self->size_ratio_x / init_x_ratio;
+    double y_ratio_change = self->size_ratio_y / init_y_ratio;
+    self->zoom_size_ratio_x = x_ratio_change * init_x_zoom_ratio;
+    self->zoom_size_ratio_y = y_ratio_change * init_y_zoom_ratio;
 }
 
 void life_drawer_change_game_size(life_drawer* self, uint32_t cells_x, uint32_t cells_y);  // TODO
