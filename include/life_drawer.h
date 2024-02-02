@@ -21,6 +21,7 @@ typedef struct
     double size_ratio_y;
     double zoom_size_ratio_x;
     double zoom_size_ratio_y;
+    uint32_t pixels_x, pixels_y;
 }
 life_drawer;
 

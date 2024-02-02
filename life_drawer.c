@@ -25,6 +25,26 @@ coordinates life_drawer_get_cell_size(const life_drawer* self)
 }
 
 
+static uint64_t min(uint64_t num1, uint64_t num2)
+{
+    if (num1 < num2)
+    {
+        return num1;
+    }
+    return num2;
+}
+
+
+static uint64_t max(uint64_t num1, uint64_t num2)
+{
+    if (num1 > num2)
+    {
+        return num1;
+    }
+    return num2;
+}
+
+
 // in game field
 static coordinates get_cell_coordinates(const life_drawer* self, coordinates pixel_position)
 {
@@ -59,6 +79,24 @@ static bool is_pixel_on_grid(const life_drawer* self, coordinates pixel)
 }
 
 
+static coordinates life_drawer_optimixe_pixels_ratio(
+    life_drawer* self, uint32_t pixels_x, uint32_t pixels_y
+){
+    double ratio = (double)self->game.field->x_size / (double)self->game.field->y_size;
+    uint32_t pixels_x_from_ratio = round(ratio * pixels_y);
+    uint32_t pixels_y_from_ratio = round((double)pixels_x / ratio);
+    uint64_t(*min_max_func)(uint64_t, uint64_t) = min;
+    if ((pixels_x >= self->pixels_x) && (pixels_y >= self->pixels_y))
+    {
+        min_max_func = max;
+    }
+    return (coordinates){
+        min_max_func(pixels_x, pixels_x_from_ratio),
+        min_max_func(pixels_y, pixels_y_from_ratio)
+    };
+}
+
+
 // on screen
 /*static coordinates get_cell_position(const life_drawer* self, coordinates cell)
 {
@@ -72,6 +110,8 @@ static bool is_pixel_on_grid(const life_drawer* self, coordinates pixel)
 void life_drawer_init(life_drawer* self, uint32_t pixels_x, uint32_t pixels_y, uint32_t cells_x, uint32_t cells_y)
 {
     life_runner_init(&self->game, cells_x, cells_y);
+    self->pixels_x = pixels_x;
+    self->pixels_y = pixels_y;
 
     if (SDL_Init(SDL_INIT_VIDEO))
     {
@@ -80,7 +120,12 @@ void life_drawer_init(life_drawer* self, uint32_t pixels_x, uint32_t pixels_y, u
 
     SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "0");
     SDL_SetHintWithPriority(SDL_HINT_RENDER_VSYNC, "1", SDL_HINT_OVERRIDE);
-    self->window = SDL_CreateWindow("Game Of Life", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, pixels_x, pixels_y, SDL_WINDOW_SHOWN);
+    coordinates window_size = life_drawer_optimixe_pixels_ratio(self, pixels_x, pixels_y);
+    self->window = SDL_CreateWindow(
+        "Game Of Life", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+        window_size.x, window_size.y,
+        SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL
+    );
     
     if (!self->window)
     {
@@ -233,26 +278,6 @@ void life_drawer_change_cell(life_drawer* self, uint32_t pixel_x, uint32_t pixel
 }
 
 
-uint64_t min(uint64_t num1, uint64_t num2)
-{
-    if (num1 < num2)
-    {
-        return num1;
-    }
-    return num2;
-}
-
-
-uint64_t max(uint64_t num1, uint64_t num2)
-{
-    if (num1 > num2)
-    {
-        return num1;
-    }
-    return num2;
-}
-
-
 void life_drawer_draw_line(life_drawer* self, coordinates begin, coordinates end, bool value)
 {
     int line_length_x = end.x - begin.x;
@@ -385,6 +410,21 @@ void life_drawer_zoom_out(life_drawer* self, coordinates mouse)
     life_drawer_zoom(self, mouse, ZOOM_OUT);
 }
 
-void life_drawer_change_window_size(life_drawer* self, uint32_t pixels_x, uint32_t pixels_y);  // TODO
+void life_drawer_change_window_size(life_drawer* self, uint32_t pixels_x, uint32_t pixels_y)
+{
+    // double init_x_ratio = self->size_ratio_x;
+    // double init_y_ratio = self->size_ratio_y;
+    // double init_x_zoom_ratio = self->zoom_size_ratio_x;
+    // double init_y_zoom_ratio = self->zoom_size_ratio_y;
+    coordinates pixels = life_drawer_optimixe_pixels_ratio(self, pixels_x, pixels_y);
+    life_drawer_field_fit(self);
+    // double x_ratio_change = init_x_ratio / self->size_ratio_x;
+    // double y_ratio_change = init_y_ratio / self->size_ratio_y;
+    // self->zoom_size_ratio_x = x_ratio_change / init_x_zoom_ratio;
+    // self->zoom_size_ratio_y = y_ratio_change / init_y_zoom_ratio;
+    // printf("%d, %d\n", pixels.x, pixels.y);
+    self->pixels_x = pixels.x;
+    self->pixels_y = pixels.y;
+}
 
 void life_drawer_change_game_size(life_drawer* self, uint32_t cells_x, uint32_t cells_y);  // TODO

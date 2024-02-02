@@ -33,6 +33,7 @@ void event_listener_listen(event_listener* self, void* threader)
         }
         switch (self->event.type)
         {
+            case SDL_APP_TERMINATING:
             case SDL_QUIT:
             {
                 self->run = false;

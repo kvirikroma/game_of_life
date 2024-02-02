@@ -19,7 +19,7 @@ static void signal_handler(int code)
 }
 
 
-int main()
+void run()
 {
     step_delay = 200;
     int64_t msec_total = 0;
@@ -92,24 +92,29 @@ int main()
     }
 
     io_threader_delete(&threader);
-    return 0;
 }
 
-// int main()
-// {
-//     life_runner runner;
-//     life_runner_init(&runner, 512, 288);
-//     while (true)
-//     {
-//         int start_msec = get_current_millisecond();
+void test()
+{
+    life_runner runner;
+    life_runner_init(&runner, 512, 288);
+    while (true)
+    {
+        int start_msec = get_current_millisecond();
 
-//         for (uint8_t i = 0; i < 64; i++)
-//         {
-//             life_runner_make_step(&runner);
-//         }
+        for (uint8_t i = 0; i < 64; i++)
+        {
+            life_runner_make_step(&runner);
+        }
 
-//         printf("Total milliseconds: %d\n", (int)(get_current_millisecond() - start_msec));
-//     }
+        printf("Total milliseconds: %d\n", (int)(get_current_millisecond() - start_msec));
+    }
+}
 
-//     return 0;
-// }
+int main()
+{
+    // test();
+    run();
+
+    return 0;
+}

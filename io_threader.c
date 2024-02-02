@@ -132,7 +132,22 @@ void* output_thread_function(void* parameters)
 
     while (!self->stop_flag)
     {
-        
+        int x, y;
+        SDL_GetWindowSize(self->drawer.window, &x, &y);
+        if ((self->drawer.pixels_x != x) || (self->drawer.pixels_y != y))
+        {
+            SDL_SetWindowResizable(self->drawer.window, SDL_FALSE);
+            sleep_ms(1);
+            io_threader_lock_drawer(self);
+            life_drawer_change_window_size(
+                &self->drawer, (uint32_t)x, (uint32_t)y
+            );
+            io_threader_unlock_drawer(self);
+            self->redrawed = false;
+            SDL_SetWindowSize(self->drawer.window, self->drawer.pixels_x, self->drawer.pixels_y);
+            self->redrawed = false;
+            SDL_SetWindowResizable(self->drawer.window, SDL_TRUE);
+        }
         bool was_redrawed_before = self->redrawed;
         if (!was_redrawed_before)
         {
