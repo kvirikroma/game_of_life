@@ -21,7 +21,7 @@ static void signal_handler(int code)
 
 void run()
 {
-    step_delay = 200;
+    step_delay = 250;
     int64_t msec_total = 0;
 
     io_threader_init(&threader, 1280, 720, 512, 288);

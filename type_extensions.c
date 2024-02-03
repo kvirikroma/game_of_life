@@ -74,24 +74,16 @@ void life_runner_move_game(life_runner* self, direction move_direction, uint32_t
 
 void life_runner_move_game_by_coordinates(life_runner* self, int32_t x_offset, int32_t y_offset)
 {
-    bit_array2d* new_field;
-    if (self->field == self->field_1)
-    {
-        new_field = self->field_2;
-    }
-    else
-    {
-        new_field = self->field_1;
-    }
+    bit_array2d* new_field = (self->field == self->field_1) ? self->field_2 : self->field_1;
     bit_array2d_erase(new_field);
     for (uint32_t y = 0; y < self->field->y_size; y++)
     {
         for (uint32_t x = 0; x < self->field->x_size; x++)
         {
-            if (bit_array2d_get_bit((bit_array2d*)self->field, x, y))
-            {
-                bit_array2d_set_bit(new_field, x + x_offset, y + y_offset, 1);
-            }
+            bit_array2d_set_bit(
+                new_field, x + x_offset, y + y_offset,
+                bit_array2d_get_bit(self->field, x, y)
+            );
         }
     }
     self->field = new_field;

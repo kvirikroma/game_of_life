@@ -151,10 +151,20 @@ void event_listener_listen(event_listener* self, void* threader)
                         if (SDL_GetWindowFlags(iothreader->drawer.window) & SDL_WINDOW_FULLSCREEN_DESKTOP)
                         {
                             SDL_SetWindowFullscreen(iothreader->drawer.window, 0);
+                            SDL_SetWindowPosition(iothreader->drawer.window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
                         }
                         else
                         {
                             SDL_SetWindowFullscreen(iothreader->drawer.window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+                        }
+                        break;
+                    }
+                    case SDLK_ESCAPE:
+                    {
+                        if (SDL_GetWindowFlags(iothreader->drawer.window) & SDL_WINDOW_FULLSCREEN_DESKTOP)
+                        {
+                            SDL_SetWindowFullscreen(iothreader->drawer.window, 0);
+                            SDL_SetWindowPosition(iothreader->drawer.window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
                         }
                         break;
                     }
