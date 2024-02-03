@@ -120,6 +120,13 @@ void* input_thread_function(void* parameters)
 }
 
 
+static bool resize_is_needed(io_threader* self, int x, int y)
+{
+    return (self->drawer.pixels_x != x) || (self->drawer.pixels_y != y) ||
+            !life_drawer_pixels_ratio_optimized(&self->drawer);
+}
+
+
 void* output_thread_function(void* parameters)
 {
     output_thread_params* params = (output_thread_params*)parameters;
@@ -129,22 +136,33 @@ void* output_thread_function(void* parameters)
     life_drawer_init(&self->drawer, params->window_size.x, params->window_size.y, params->game_field_size.x, params->game_field_size.y);
     pthread_create((pthread_t*)&self->input_thread, NULL, input_thread_function, (void*)input_params);
     int64_t last_activity = get_current_millisecond();
+    self->redrawed = false;
 
     while (!self->stop_flag)
     {
         int x, y;
         SDL_GetWindowSize(self->drawer.window, &x, &y);
-        if ((self->drawer.pixels_x != x) || (self->drawer.pixels_y != y))
+        if (resize_is_needed(self, x, y))
         {
             SDL_SetWindowResizable(self->drawer.window, SDL_FALSE);
-            sleep_ms(20);
+            sleep_ms(35);
             io_threader_lock_drawer(self);
             life_drawer_change_window_size(
                 &self->drawer, (uint32_t)x, (uint32_t)y
             );
             SDL_SetWindowSize(self->drawer.window, self->drawer.pixels_x, self->drawer.pixels_y);
+            sleep_ms(1);
+            SDL_GetWindowSize(self->drawer.window, &x, &y);
             self->redrawed = false;
+            if (
+                resize_is_needed(self, x, y) &&
+                (SDL_GetWindowFlags(self->drawer.window) & SDL_WINDOW_FULLSCREEN_DESKTOP)
+            ){
+                SDL_SetWindowFullscreen(self->drawer.window, 0);
+                SDL_MaximizeWindow(self->drawer.window);
+            }
             io_threader_unlock_drawer(self);
+            sleep_ms(5);
             SDL_SetWindowResizable(self->drawer.window, SDL_TRUE);
         }
         bool was_redrawed_before = self->redrawed;

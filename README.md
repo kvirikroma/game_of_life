@@ -32,8 +32,9 @@ mouse wheel down - zoom out
 <b>Most important issues now:</b><br>
 <pre>
 1. Cannot resize the game field
-2. Speed changing is too primitive
-3. There's no intuitive GUI, just a key bindings
-4. No ability to rollback last N steps of game
-5. A new step is calculated too slowly since the app doesn't use Hashlife (and the logic works on a single thread)
+2. Sometimes an attempt to resize the window fails with SIGSEGV
+3. Speed changing is too primitive
+4. There's no intuitive GUI, just a key bindings
+5. No ability to rollback last N steps of game
+6. A new step is calculated too slowly since the app doesn't use Hashlife (and the logic works on a single thread)
 </pre>

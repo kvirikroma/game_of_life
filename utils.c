@@ -101,3 +101,23 @@ bool load_runner_snapshot_from_file(life_runner_snapshot* snapshot, const char* 
     fclose(file);
     return result;
 }
+
+
+uint64_t min(uint64_t num1, uint64_t num2)
+{
+    if (num1 < num2)
+    {
+        return num1;
+    }
+    return num2;
+}
+
+
+uint64_t max(uint64_t num1, uint64_t num2)
+{
+    if (num1 > num2)
+    {
+        return num1;
+    }
+    return num2;
+}

@@ -1,6 +1,7 @@
 #include <math.h>
 
 #include "include/life_drawer.h"
+#include "include/utils.h"
 
 #define ZOOM_BORDERS_SIZE  6
 #define ZOOM_LAYOUT_COLOR  0x22888888
@@ -24,26 +25,6 @@ coordinates life_drawer_get_cell_size(const life_drawer* self)
         round((double)1 / self->zoom_size_ratio_x),
         round((double)1 / self->zoom_size_ratio_y)
     };
-}
-
-
-static uint64_t min(uint64_t num1, uint64_t num2)
-{
-    if (num1 < num2)
-    {
-        return num1;
-    }
-    return num2;
-}
-
-
-static uint64_t max(uint64_t num1, uint64_t num2)
-{
-    if (num1 > num2)
-    {
-        return num1;
-    }
-    return num2;
 }
 
 
@@ -84,12 +65,21 @@ static bool is_pixel_on_grid(const life_drawer* self, coordinates pixel)
 static coordinates life_drawer_optimize_pixels_ratio(
     life_drawer* self, uint32_t pixels_x, uint32_t pixels_y
 ){
+    SDL_DisplayMode DM;
+    if (self->window)
+    {
+        SDL_GetCurrentDisplayMode(SDL_GetWindowDisplayIndex(self->window), &DM);
+        pixels_x = min(pixels_x, DM.w);
+        pixels_y = min(pixels_y, DM.h);
+    }
     double ratio = (double)self->game.field->x_size / (double)self->game.field->y_size;
     uint32_t pixels_x_from_ratio = round(ratio * pixels_y);
     uint32_t pixels_y_from_ratio = round((double)pixels_x / ratio);
     uint64_t(*min_max_func)(uint64_t, uint64_t) = min;
-    if ((pixels_x >= self->pixels_x) && (pixels_y >= self->pixels_y))
-    {
+    if (
+        (pixels_x >= self->pixels_x) && (pixels_y >= self->pixels_y) &&
+        (!self->window || ((pixels_x_from_ratio <= DM.w) && (pixels_y_from_ratio <= DM.h)))
+    ){
         min_max_func = max;
     }
     return (coordinates){
@@ -122,6 +112,7 @@ void life_drawer_init(life_drawer* self, uint32_t pixels_x, uint32_t pixels_y, u
     life_runner_init(&self->game, cells_x, cells_y);
     self->pixels_x = pixels_x;
     self->pixels_y = pixels_y;
+    self->window = NULL;
 
     if (SDL_Init(SDL_INIT_VIDEO))
     {

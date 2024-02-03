@@ -24,7 +24,7 @@ void run()
     step_delay = 200;
     int64_t msec_total = 0;
 
-    io_threader_init(&threader, 1600, 900, 512, 288);
+    io_threader_init(&threader, 1280, 720, 512, 288);
     signal(SIGINT, signal_handler);
     signal(SIGTERM, signal_handler);
     while(!threader.threads_started)

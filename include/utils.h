@@ -27,4 +27,8 @@ bool load_runner_snapshot_from_file(life_runner_snapshot* snapshot, const char* 
 // Get milisecond of current day
 int64_t get_current_millisecond(void);
 
+uint64_t min(uint64_t num1, uint64_t num2);
+
+uint64_t max(uint64_t num1, uint64_t num2);
+
 #endif
