@@ -8,6 +8,7 @@ c - clear the game field
 space - pause
 s - save game to "saved_game.life"
 l - load game from "saved_game.life"
+q (or just close the window) - quit
 1-9 buttons - change game speed (fps drops and input lags on high speed)
 0 button - make game do a single step and pause (works even when paused)
 MOVEMENT:
@@ -23,17 +24,16 @@ MOVEMENT:
 <pre>
 left mouse button - add a cell
 right mouse button - remove a cell
-middle mouse button (hold) - move a field
+middle mouse button (hold) - move the field
 mouse wheel up - zoom in
 mouse wheel down - zoom out
 </pre>
 
 <b>Most important issues now:</b><br>
 <pre>
-1. Cannot resize both window and a game field
-2. Cells may be not square if, say, window is 4:3 and game field is 16:9
-3. Speed changing is too primitive
-4. There's no intuitive GUI, just a key bindings
-5. No ability to rollback last N steps of game
-6. A new step is calculated too slowly since the app doesn't use Hashlife (and the logic works on a single thread)
+1. Cannot resize the game field
+2. Speed changing is too primitive
+3. There's no intuitive GUI, just a key bindings
+4. No ability to rollback last N steps of game
+5. A new step is calculated too slowly since the app doesn't use Hashlife (and the logic works on a single thread)
 </pre>

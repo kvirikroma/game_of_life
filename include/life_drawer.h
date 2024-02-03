@@ -32,6 +32,9 @@ void life_drawer_init(life_drawer* self, uint32_t pixels_x, uint32_t pixels_y, u
 // returns cell size in pixels
 coordinates life_drawer_get_cell_size(const life_drawer* self);
 
+// Returns true if the window ratio (pixels_x / pixels_y) is the same as the game ratio (cells_x/cells_y)
+bool life_drawer_pixels_ratio_optimized(life_drawer* self);
+
 // Delete the life drawer and the game; close the window
 void life_drawer_delete(life_drawer* self);
 

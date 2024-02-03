@@ -7,6 +7,7 @@
 #define GRID_MIN_CELL_SIZE 18
 #define ZOOM_UNIT_SIZE 1.15
 #define EPSILON 0.0000001
+#define ASPECT_RATIO_EPSILON 0.001
 
 
 typedef enum
@@ -80,7 +81,7 @@ static bool is_pixel_on_grid(const life_drawer* self, coordinates pixel)
 }
 
 
-static coordinates life_drawer_optimixe_pixels_ratio(
+static coordinates life_drawer_optimize_pixels_ratio(
     life_drawer* self, uint32_t pixels_x, uint32_t pixels_y
 ){
     double ratio = (double)self->game.field->x_size / (double)self->game.field->y_size;
@@ -95,6 +96,14 @@ static coordinates life_drawer_optimixe_pixels_ratio(
         min_max_func(pixels_x, pixels_x_from_ratio),
         min_max_func(pixels_y, pixels_y_from_ratio)
     };
+}
+
+bool life_drawer_pixels_ratio_optimized(life_drawer* self)
+{
+    return (
+        ((double)self->game.field->x_size / (double)self->game.field->y_size) -
+        ((double)self->pixels_x / (double)self->pixels_y)
+    ) < ASPECT_RATIO_EPSILON;
 }
 
 
@@ -121,7 +130,7 @@ void life_drawer_init(life_drawer* self, uint32_t pixels_x, uint32_t pixels_y, u
 
     SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "0");
     SDL_SetHintWithPriority(SDL_HINT_RENDER_VSYNC, "1", SDL_HINT_OVERRIDE);
-    coordinates window_size = life_drawer_optimixe_pixels_ratio(self, pixels_x, pixels_y);
+    coordinates window_size = life_drawer_optimize_pixels_ratio(self, pixels_x, pixels_y);
     self->window = SDL_CreateWindow(
         "Game Of Life", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
         window_size.x, window_size.y,
@@ -416,7 +425,7 @@ void life_drawer_change_window_size(life_drawer* self, uint32_t pixels_x, uint32
     double init_y_ratio = self->size_ratio_y;
     double init_x_zoom_ratio = self->zoom_size_ratio_x;
     double init_y_zoom_ratio = self->zoom_size_ratio_y;
-    coordinates pixels = life_drawer_optimixe_pixels_ratio(self, pixels_x, pixels_y);
+    coordinates pixels = life_drawer_optimize_pixels_ratio(self, pixels_x, pixels_y);
     self->pixels_x = pixels.x;
     self->pixels_y = pixels.y;
     life_drawer_field_fit(self);

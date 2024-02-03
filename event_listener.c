@@ -140,10 +140,22 @@ void event_listener_listen(event_listener* self, void* threader)
                         flush_event = true;
                         break;
                     }
-                    case SDLK_ESCAPE:
+                    case SDLK_q:
                     {
                         self->run = false;
                         flush_event = true;
+                        break;
+                    }
+                    case SDLK_F11:
+                    {
+                        if (SDL_GetWindowFlags(iothreader->drawer.window) & SDL_WINDOW_FULLSCREEN_DESKTOP)
+                        {
+                            SDL_SetWindowFullscreen(iothreader->drawer.window, 0);
+                        }
+                        else
+                        {
+                            SDL_SetWindowFullscreen(iothreader->drawer.window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+                        }
                         break;
                     }
 
